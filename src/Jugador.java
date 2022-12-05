@@ -273,6 +273,12 @@ public class Jugador {
 		return isThere;
 	}
 	
+	/**
+	 * Método para mostrar por pantalla las cartas en la mano de un jugador dado.
+	 * @param jugadores , array de jugadores.
+	 * @param pos , posición del jugador actual.
+	 */
+	
 	public static void verMano(Jugador[] jugadores, int pos) {
 		System.out.println("");
 		System.out.print("Cartas en la Mano: ");
@@ -305,6 +311,12 @@ public class Jugador {
 		
 		return jugadoresNuevo;
 	}
+	
+	/**
+	 * Método para ordenar las cartas de la mano de un jugador, de mayor a menor valor.
+	 * @param mano , el array de cartas en la mano de un jugador.
+	 * @return el array de cartas ordenado.
+	 */
 	
 	public static Carta[] ordenaMano(Carta[] mano) {
 		Carta[] manoNueva = new Carta[mano.length];
