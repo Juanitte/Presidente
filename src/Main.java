@@ -5,7 +5,7 @@ public class Main {
 		
 		//Mensaje de inicio.
 		
-		System.out.println("ALÓ, PRESIDENTES");
+		System.out.println("CUALQUIER COSA");
 		System.out.println("");
 		
 		
