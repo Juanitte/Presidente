@@ -36,7 +36,7 @@ public class Main {
 		baraja.setCartas(Baraja.shuffle(baraja.getCartas()));
 		
 		
-		//Repartir las cartas entre los jugadores.
+		//Repartir las cartas entre los jugadores y ordenarlas en la mano.
 		
 		Jugador.llenaMano(baraja.getCartas(), jugadores);
 		jugadores = Jugador.ordenaManos(jugadores);

@@ -201,12 +201,24 @@ public class Jugador {
 	}
 	
 	/**
-	 * Método para recoger la opción del menú introducida y actuar en consecuencia.
+	 * Método para recoger la opción seleccionada, actuar en consecuencia y que devuelve un array de booleanos(cuya funcion se explica abajo en comentarios).
+	 * @param jugadores , El array de jugadores.
+	 * @param pos , la posición del jugador actual.
+	 * @return Un array de booleanos para controlar los finales de turno, ronda, partida, programa, y si un jugador pasa turno.
 	 */
 	
-	public static boolean[] options(Jugador[] jugadores, int pos) {
-		boolean[] isOver = new boolean[]{false, false, false, false, false};	//En isOver[0] se controlará el fin de turno. En isOver[1] se controlará el fin de ronda.
-																				//En isOver[2] se controlará el fin de partida. En isOver[3] se controlará el fin del juego. En isOver[4] se controlará si el jugador ha pasado turno.		
+	public static boolean[] options(boolean[] isOver, Jugador[] jugadores, int pos) {
+		
+		// En isOver[0] se controlará el fin de turno.
+		
+		// En isOver[1] se controlará el fin de ronda.
+		
+		// En isOver[2] se controlará el fin de partida.
+		
+		// En isOver[3] se controlará el fin del juego.
+		
+		// En isOver[4] se controlará si el jugador ha pasado turno.	
+		
 		int opt = leeEntero("", 1, 3);
 		
 		switch(opt) {
@@ -428,6 +440,21 @@ public class Jugador {
 		
 		
 		return jugadores;
+	}
+	
+	/**
+	 * Método para llenar un array de booleanos por defecto en false.
+	 * @param arrayDeFlags , el array a llenar.
+	 * @return El array de booleanos lleno todo en false.
+	 */
+	
+	public static boolean[] creaFlagArray(boolean[] arrayDeFlags) {
+		
+		for(int i = 0; i < arrayDeFlags.length; i++) {
+			arrayDeFlags[i] = false;
+		}
+		
+		return arrayDeFlags;
 	}
 
 	
