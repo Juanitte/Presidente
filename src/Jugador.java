@@ -694,6 +694,22 @@ public class Jugador {
 	    }
 	    return hayPresidente;
 	}
+	
+	public static int jugadoresConCarta (Jugador[] jugadores){
+	    int n=0;
+	    boolean hayCarta=false;
+	    for (int i=0; i<jugadores.length; i++){
+	        for (int j=0; j<jugadores[i].getMano().length; j++){
+	            if(jugadores[i].getMano()[j].getNumero() !=0 ){
+	                hayCarta=true;
+	            }
+	        }
+	        if(hayCarta){
+	            n++;
+	        }
+	    }
+	    return n;
+	}
 
 }
 		
