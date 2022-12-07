@@ -637,4 +637,33 @@ public class Jugador {
 		return numero;
 	}
 	
+	
+	/**
+	 * Método para borrar la carta jugada de la mano.
+	 * @param jugadores , Recibe el Array de jugadores.
+	 * @param pos , La posición del jugador actual.
+	 * @param carta , La carta a borrar
+	 * @return , Devuelve el array ya modificado.
+	 */
+	
+	
+	
+	public static Jugador[] sacaCarta(Jugador[] jugadores,int pos, Carta carta) {
+		for(int i = 0; i < jugadores[pos].getMano().length; i++) {
+		
+			if(jugadores[pos].getMano()[i].getNumero() == carta.getNumero()){
+				if(jugadores[pos].getMano()[i].getPalo() == carta.getPalo()){
+					
+					jugadores[pos].getMano()[i].setNumero(0);
+					jugadores[pos].getMano()[i].setPalo("");
+				}
+				
+			}
+			
+		}
+		return jugadores;
+	}
+	
+	
 }
+		
