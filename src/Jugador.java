@@ -5,6 +5,7 @@ public class Jugador {
 	private String rol;
 	private int posicion;
 	private Carta[] mano;
+	private Carta[] ultimaJugada;
 
 	/**
 	 * Constructor de la clase Jugador.
@@ -16,6 +17,7 @@ public class Jugador {
 		this.nombre = "";
 		this.rol = "";
 		this.posicion = 0;
+		this.ultimaJugada = null;
 		this.mano = new Carta[(40 / numeroJugadores) + 1];
 		for(int i = 0; i < mano.length; i++) {
 			this.mano[i] = new Carta();
@@ -94,6 +96,24 @@ public class Jugador {
 		this.mano = mano;
 	}
 	
+	/**
+	 * Getter para el atributo ultimaJugada de la clase Jugador.
+	 * @return un array de cartas con las ultimas cartas jugadas del jugador.
+	 */
+	
+	public Carta[] getUltimaJugada() {
+		return ultimaJugada;
+	}
+	
+	/**
+	 * Setter para el atributo ultimaJugada de la clase Jugador.
+	 * @param ultimaJugada , las cartas del jugador.
+	 */
+	
+	public void setUltimaJugada(Carta[] ultimaJugada) {
+		this.ultimaJugada = ultimaJugada;
+	}
+	
 	
 	/**
 	 * Método para determinar si hay más de 4 jugadores o no.
@@ -126,7 +146,7 @@ public class Jugador {
 		for(int i = 0; i < jugadores.length; i++) {
 			jugadores[i] = new Jugador(numeroJugadores);
 			System.out.println("JUGADOR "+(i + 1));
-			jugadores[i].nombre = validaNombre("Introduce tu nombre: ");
+			jugadores[i].nombre = validaString("Introduce tu nombre: ", 3, 20);
 			System.out.println("");
 		}
 		
@@ -141,7 +161,7 @@ public class Jugador {
 	
 	
 	
-	public static String validaNombre(String msn) {
+	public static String validaString(String msn, int min, int max) {
 
 		@SuppressWarnings("resource")
 		Scanner sc = new Scanner(System.in);
@@ -152,9 +172,9 @@ public class Jugador {
 			System.out.println("");
 			System.out.print(msn);
 			nombre = sc.nextLine();
-			if(nombre.length() <= 20 && nombre.length() >= 3) {
+			if(nombre.length() <= max && nombre.length() >= min) {
 				isIn = true;
-			}else if(nombre.length() > 20){
+			}else if(nombre.length() > max){
 				System.out.println("El nombre no puede superar los 20 caracteres.");
 			}else {
 				System.out.println("El nombre debe tener al menos 3 caracteres.");
@@ -200,14 +220,7 @@ public class Jugador {
 		System.out.println("3 - Ver Mano.");
 	}
 	
-	/**
-	 * Método para recoger la opción seleccionada, actuar en consecuencia y que devuelve un array de booleanos(cuya funcion se explica abajo en comentarios).
-	 * @param jugadores , El array de jugadores.
-	 * @param pos , la posición del jugador actual.
-	 * @return Un array de booleanos para controlar los finales de turno, ronda, partida, programa, y si un jugador pasa turno.
-	 */
-	
-	public static boolean[] options(boolean[] isOver, Jugador[] jugadores, int pos) {
+	public static boolean[] options(Jugador[] jugadores,int pos, boolean[] isOver) {
 		
 		// En isOver[0] se controlará el fin de turno.
 		
@@ -217,13 +230,14 @@ public class Jugador {
 		
 		// En isOver[3] se controlará el fin del juego.
 		
-		// En isOver[4] se controlará si el jugador ha pasado turno.	
+		// En isOver[4] se controlará si el jugador ha pasado turno.
 		
-		int opt = leeEntero("", 1, 3);
+		int opt = Jugador.leeEntero("", 1, 3);
 		
 		switch(opt) {
 			case 1:
-				opcionJugar(jugadores, pos);
+				//Aquí además de realizar las acciones de la opción jugar, llena un array con las cartas que se han jugado.
+				jugadores = Jugador.opcionJugar(jugadores, pos);
 				isOver[0] = true;
 				break;
 			case 2:
@@ -232,7 +246,7 @@ public class Jugador {
 				isOver[4] = true;
 				break;
 			case 3:
-				verMano(jugadores, pos);
+				Jugador.verMano(jugadores, pos);
 		}
 		
 		return isOver;
@@ -243,9 +257,14 @@ public class Jugador {
 	 * @param pos , posición del jugador actual.
 	 */
 	
-	public static void opcionJugar(Jugador[] jugadores, int pos) {
+	public static Jugador[] opcionJugar(Jugador[] jugadores, int pos) {
 		System.out.println("");
 		int numeroCartas = 0;
+		String nombreCarta = "";
+		boolean areThere = false;
+		Carta carta = new Carta();
+		int auxCartas = 0;
+		
 		do {
 			numeroCartas = leeEntero("Introduce el número de cartas a jugar: ", 1, 8);
 			if(!cartasEnMano(jugadores, numeroCartas, pos)) {
@@ -253,10 +272,94 @@ public class Jugador {
 			}
 		}while(!cartasEnMano(jugadores, numeroCartas, pos));
 		
+		jugadores[pos].ultimaJugada = new Carta[numeroCartas];
+		
 		for(int i = 0; i < numeroCartas; i++) {
-			System.out.println("");
-			System.out.print("Introduce la "+(i + 1)+"ª carta a jugar:");
+			boolean isCorrect = false;
+			do {
+				areThere = false;
+				System.out.println("");
+				System.out.print("Introduce la "+(i + 1)+"ª carta a jugar:");
+				nombreCarta = validaString("", 1, 50);
+				isCorrect = cartaEnMano(jugadores, pos, nombreCarta);
+				if(isCorrect) {
+					carta = cartaFromString(nombreCarta);
+				}
+				if(isCorrect && !areThere) {
+					for(int j = 0; j < jugadores[pos].mano.length; j++) {
+						if(jugadores[pos].mano[j].getNumero() == carta.getNumero()) {
+							auxCartas++;
+						}
+					}
+					if(auxCartas < numeroCartas) {
+						System.out.println("No tienes suficientes cartas del valor especificado en la mano.");
+						isCorrect = false;
+					}else {
+						areThere = true;
+					}
+				}else {
+					System.out.println("El nombre introducido no coincide con ninguna carta de tu mano.");
+				}
+			}while(!isCorrect);
+			jugadores[pos].ultimaJugada[i] = new Carta(carta.getNumero(), carta.getPalo());
+			jugadores = sacaCarta(jugadores, pos, carta);
 		}
+		return jugadores;
+	}
+	
+	public static boolean jugadasIguales(Carta[] jugadaActual, Carta[] jugadaAnterior) {
+		boolean isEqual = false;
+		int act = 0;
+		int ant = 0;
+		
+		for(int i = 0; i < jugadaActual.length; i++) {
+			if(jugadaActual[i].getNumero() != 2) {
+				act = jugadaActual[i].getNumero();
+			}
+			if(jugadaAnterior[i].getNumero() != 2) {
+				ant = jugadaAnterior[i].getNumero();
+			}
+		}
+		if(act == ant) {
+			isEqual = true;
+		}
+		
+		return isEqual;
+	}
+	
+	public static Jugador[] limpiaUltimaJugada(Jugador[] jugadores) {
+		
+		for(int i = 0; i < jugadores.length; i++) {
+			for(int j = 0; j < jugadores[i].getUltimaJugada().length; j++) {
+				jugadores[i].ultimaJugada[j].setNumero(0);
+				jugadores[i].ultimaJugada[j].setPalo("");;
+			}
+		}
+		
+		return jugadores;
+	}
+	
+	/**
+	 * Método que recibe un string y devuelve la carta a la que hace referencia.
+	 * @param nombreCarta , el string que designa a la carta(en el formato de Carta.toString()).
+	 * @return El objeto de clase Carta a la que hace referencia el String dado.
+	 */
+	
+	public static Carta cartaFromString(String nombreCarta) {
+		Carta carta = new Carta();
+		
+		carta.setNumero((int) nombreCarta.charAt(0));
+		if(nombreCarta.charAt(5) == 'o') {
+			carta.setPalo("oros");
+		}else if(nombreCarta.charAt(5) == 'c') {
+			carta.setPalo("copas");			
+		}else if(nombreCarta.charAt(5) == 'e') {
+			carta.setPalo("espadas");			
+		}else{
+			carta.setPalo("bastos");			
+		}
+		
+		return carta;
 	}
 	
 	/**
@@ -413,6 +516,7 @@ public class Jugador {
 					jugadoresOrdenados[i].setRol(jugadores[j].getRol());
 					jugadoresOrdenados[i].setMano(jugadores[j].getMano());
 					jugadoresOrdenados[i].setPosicion(jugadores[j].getPosicion());
+					jugadoresOrdenados[i].setUltimaJugada(jugadores[j].getUltimaJugada());
 				}
 			}
 		}
