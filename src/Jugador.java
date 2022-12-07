@@ -664,6 +664,22 @@ public class Jugador {
 		return jugadores;
 	}
 	
-	
+	/**
+	 * Método que comprueba si la carta que me han introducido está en la mano del jugador
+	 * @param jugadores array con los jugadores
+	 * @param pos  posición del jugador actual
+	 * @param nombreCarta     String que ha introducido el usuario
+	 * @return    el boolean que dice si la carta está en la mano
+	 */
+	public static boolean cartaEnMano (Jugador[] jugadores, int pos, String nombreCarta) {
+	    boolean sonValidas=false;
+	    for (int i=0; i<jugadores[pos].getMano().length; i++){
+	        if(jugadores[pos].getMano()[i].toString() == nombreCarta){
+	            sonValidas=true;
+	        }
+	    }
+	    return sonValidas;
+	    }
+
 }
 		
