@@ -680,6 +680,20 @@ public class Jugador {
 	    }
 	    return sonValidas;
 	    }
+	/**
+	 * Método que comprueba si hay un presidente
+	 * @param jugadores  el array de jugadores
+	 * @return un boolean que es true si hay un presidente
+	 */
+	public static boolean compruebaPresidente (Jugador[] jugadores){
+	    boolean hayPresidente=false;
+	    for (int i=0; i<jugadores.length; i++){
+	        if(jugadores[i].getRol() == "presidente"){
+	            hayPresidente=true;
+	        }
+	    }
+	    return hayPresidente;
+	}
 
 }
 		
