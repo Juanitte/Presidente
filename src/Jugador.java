@@ -307,10 +307,17 @@ public class Jugador {
 		return jugadores;
 	}
 	
+	/**
+	 * Método que compara 2 arrays de cartas y devuelve un boolean true si los números de las cartas (que no sean 2) coinciden. En caso de ser todo 2 también da true.
+	 * @param jugadaActual , uno de los arrays de cartas.
+	 * @param jugadaAnterior , el otro array de cartas.
+	 * @return un boolean true si las 2 últimas jugadas son iguales.
+	 */
+	
 	public static boolean jugadasIguales(Carta[] jugadaActual, Carta[] jugadaAnterior) {
 		boolean isEqual = false;
-		int act = 0;
-		int ant = 0;
+		int act = 2;
+		int ant = 2;
 		
 		for(int i = 0; i < jugadaActual.length; i++) {
 			if(jugadaActual[i].getNumero() != 2) {
@@ -326,6 +333,12 @@ public class Jugador {
 		
 		return isEqual;
 	}
+	
+	/**
+	 * Método para vaciar el array ultimaJugada de todos los jugadores para la siguiente ronda.
+	 * @param jugadores , el array de jugadores.
+	 * @return el array de jugadores con todas las cartas de ultimaJugada en default.
+	 */
 	
 	public static Jugador[] limpiaUltimaJugada(Jugador[] jugadores) {
 		
