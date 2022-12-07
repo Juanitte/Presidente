@@ -5,7 +5,7 @@ public class Main {
 		
 		//Mensaje de inicio.
 		
-		System.out.println("ALO PRESIDENTES");
+		System.out.println("ALÓ, PRESIDENTES");
 		System.out.println("");
 		
 		
@@ -47,7 +47,7 @@ public class Main {
 		
 		//Empieza la partida.
 		
-			//Creación de array de booleanos para controlar: [0] Fin de turno - [1] Fin de ronda - [2] Fin de partida - [3] Fin de programa - [4] Si el jugador actual ha pasado turno.
+		//Creación de array de booleanos para controlar: [0] Fin de turno - [1] Fin de ronda - [2] Fin de partida - [3] Fin de programa - [4] Si el jugador actual ha pasado turno.
 		boolean[] isOver = new boolean[5];
 		
 			//Bucle para empezar una nueva partida en caso de que queden al menos 2 jugadores.
@@ -73,7 +73,13 @@ public class Main {
 							
 							//Muestra el menú para el jugador[i], lee la opción introducida y actúa en consecuencia. Aquí se rellena el array de booleanos que está explicado arriba (línea 50).
 							Jugador.muestraMenu(jugadores, i);
-							isOver = Jugador.options(isOver, jugadores, i);
+							isOver = Jugador.options(jugadores, i, isOver);
+							
+							//Comprobación: Si han pasado todos los jugadores menos 1, reasigna la posición de los jugadores para que el ganador empiece la siguiente ronda y activa el boolean que da por terminada la ronda.
+							if(contPasa == jugadores.length - 1) {
+								jugadores = Jugador.asignaPosicion(jugadores, i);
+								isOver[1] = true;
+							}
 							
 							//Comprobación: Si el jugador actual ha pasado turno, suma 1 al contador de personas que han pasado turno.
 							if(isOver[4]) {
@@ -84,18 +90,32 @@ public class Main {
 								contPasa = 0;
 							}
 							
-							//Comprobación: Si han pasado todos los jugadores menos 1, reasigna la posición de los jugadores para que el ganador empiece la siguiente ronda y activa el boolean que da por terminada la ronda.
-							if(contPasa == jugadores.length - 1) {
-								jugadores = Jugador.asignaPosicion(jugadores, i);
-								isOver[1] = true;
-							}
-							
 							//Aquí se comprueba si hay que terminar el turno del jugador actual.
 						}while(!isOver[0]);
+						
+						//Comparación de las cartas jugadas en este turno y el anterior para saltar el turno del siguiente jugador si se han jugado las mismas cartas en 2 turnos seguidos.
+						if(jugadores[i].getUltimaJugada() != null) {
+							if(i != 0) {
+								if(Jugador.jugadasIguales(jugadores[i].getUltimaJugada(), jugadores[i - 1].getUltimaJugada())) {
+									if(i == jugadores.length - 1) {
+										i = 1;
+									}else {
+										i++;
+									}
+								}
+							}else {
+								if(Jugador.jugadasIguales(jugadores[i].getUltimaJugada(), jugadores[jugadores.length - 1].getUltimaJugada())) {
+									i++;
+								}
+							}
+						}
 					}
 					
 					//Aquí se comprueba si hay que terminar la ronda actual.
 				}while(!isOver[1]);
+				
+				//Aquí se limpian las cartas de ultimaJugada.
+				jugadores = Jugador.limpiaUltimaJugada(jugadores);
 				
 				//En caso de terminar la ronda anterior, se ordenan los jugadores para que el ganador de la ronda, empiece en la siguiente.
 				jugadores = Jugador.ordenaJugadores(jugadores);
