@@ -703,6 +703,37 @@ public class Jugador {
 	    }
 	    return n;
 	}
+	/**
+	 * Método que genera un array con las cartas que se van a intercambiar en caso de 4 jugadores o menos
+	 * @param jugadores  El array de jugadores
+	 * @return   un array con las dos cartas a intercambiar. Si [0] Carta presidente y si [1] carta del culo
+	 */
+	public static Carta[] cartasIntercambiadas (Jugador[] jugadores ){
+	    Carta[] cartasIntercambiables = new Carta[2];
+	    for (int i=0; i<jugadores.length; i++){
+	        if(jugadores[i].getRol() == "culo"){
+	            cartasIntercambiables[1].setNumero(jugadores[i].getMano()[0].getNumero());
+	            cartasIntercambiables[1].setPalo(jugadores[i].getMano()[0].getPalo());
+	            jugadores = sacaCarta(jugadores, i, cartasIntercambiables[1]);
+	        }else if(jugadores[i].getRol() == "presidente"){
+	            
+	            String cartaPresidente = validaString("Introduce la carta que quieres dar al culo", 1,30);
+	            
+	            for (int j=0; j<jugadores[i].getMano().length; j++){
+	                
+	                if(cartaEnMano(jugadores, i, cartaPresidente)){
+	                    cartasIntercambiables[0].setNumero(jugadores[i].getMano()[j].getNumero());
+	                    cartasIntercambiables[0].setPalo(jugadores[i].getMano()[j].getPalo());
+	                    jugadores = sacaCarta(jugadores, i, cartasIntercambiables[0]);
+	                }
+	            }
+	        }
+	    }
+
+	    return cartasIntercambiables;
+	}
+	
+	
 
 }
 		
