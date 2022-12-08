@@ -825,6 +825,16 @@ public class Jugador {
 	}
 	
 	
+	public static boolean hayCartasEnMano(Jugador[]jugadores, int pos) {
+		boolean hayCarta=false;
+		for (int i = 0; i < jugadores[pos].getMano().length; i++) {
+			if (jugadores[pos].getMano()[i].getNumero()!=0) {
+				hayCarta=true;
+			}
+		}
+	return hayCarta;
+	}
+	
 
 }
 		
