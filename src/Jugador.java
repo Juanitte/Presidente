@@ -704,17 +704,27 @@ public class Jugador {
 	    return n;
 	}
 	/**
-	 * Método que genera un array con las cartas que se van a intercambiar en caso de 4 jugadores o menos
+	 * Método que cambia las cartas de presidente a culo
 	 * @param jugadores  El array de jugadores
-	 * @return   un array con las dos cartas a intercambiar. Si [0] Carta presidente y si [1] carta del culo
+	 * @return  El array de jugadores modificado
 	 */
-	public static Carta[] cartasIntercambiadas (Jugador[] jugadores ){
+	public static Jugador[] cartasAsignadas (Jugador[] jugadores ){
 	    Carta[] cartasIntercambiables = new Carta[2];
+	    boolean culo = false;
+	    boolean presidente = false;
+	    int culoPos=0;
+	    int presPos=0;
 	    for (int i=0; i<jugadores.length; i++){
 	        if(jugadores[i].getRol() == "culo"){
 	            cartasIntercambiables[1].setNumero(jugadores[i].getMano()[0].getNumero());
 	            cartasIntercambiables[1].setPalo(jugadores[i].getMano()[0].getPalo());
 	            jugadores = sacaCarta(jugadores, i, cartasIntercambiables[1]);
+	            culo= true;
+	            culoPos=i;
+	            if (presidente){
+	            	jugadores[presPos].getMano()[0].setNumero(cartasIntercambiables[0].getNumero());
+	            	jugadores[presPos].getMano()[0].setPalo(cartasIntercambiables[0].getPalo());
+	            }
 	        }else if(jugadores[i].getRol() == "presidente"){
 	            
 	            String cartaPresidente = validaString("Introduce la carta que quieres dar al culo", 1,30);
@@ -725,12 +735,17 @@ public class Jugador {
 	                    cartasIntercambiables[0].setNumero(jugadores[i].getMano()[j].getNumero());
 	                    cartasIntercambiables[0].setPalo(jugadores[i].getMano()[j].getPalo());
 	                    jugadores = sacaCarta(jugadores, i, cartasIntercambiables[0]);
+	                    presidente=true;
+	                    presPos=i;
+	                } if(culo) {
+	                	jugadores[culoPos].getMano()[j].setNumero(cartasIntercambiables[1].getNumero());
+	                	jugadores[culoPos].getMano()[j].setPalo(cartasIntercambiables[1].getPalo());
 	                }
 	            }
 	        }
 	    }
 
-	    return cartasIntercambiables;
+	    return jugadores;
 	}
 	
 	
