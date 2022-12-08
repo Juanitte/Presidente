@@ -17,7 +17,7 @@ public class Jugador {
 		this.nombre = "";
 		this.rol = "";
 		this.posicion = 0;
-		this.ultimaJugada = null;
+		this.ultimaJugada = new Carta[8];
 		this.mano = new Carta[(40 / numeroJugadores) + 1];
 		for(int i = 0; i < mano.length; i++) {
 			this.mano[i] = new Carta();
@@ -147,7 +147,7 @@ public class Jugador {
 			jugadores[i] = new Jugador(numeroJugadores);
 			System.out.println("JUGADOR "+(i + 1));
 			jugadores[i].nombre = validaString("Introduce tu nombre: ", 3, 20);
-			System.out.println("");
+			System.out.println("¡Jugador creado con éxito!");
 		}
 		
 		return jugadores;
@@ -181,7 +181,6 @@ public class Jugador {
 			}
 		}while(!isIn);
 		
-		System.out.println("¡Jugador creado con éxito!");
 		
 		return nombre;
 	}
@@ -264,6 +263,8 @@ public class Jugador {
 		boolean areThere = false;
 		Carta carta = new Carta();
 		int auxCartas = 0;
+		Carta cartaJugada = new Carta();
+		
 		
 		do {
 			numeroCartas = leeEntero("Introduce el número de cartas a jugar: ", 1, 8);
@@ -273,6 +274,7 @@ public class Jugador {
 		}while(!cartasEnMano(jugadores, numeroCartas, pos));
 		
 		jugadores[pos].ultimaJugada = new Carta[numeroCartas];
+		jugadores = creaCartaArray(jugadores);
 		
 		for(int i = 0; i < numeroCartas; i++) {
 			boolean isCorrect = false;
@@ -281,7 +283,8 @@ public class Jugador {
 				System.out.println("");
 				System.out.print("Introduce la "+(i + 1)+"ª carta a jugar:");
 				nombreCarta = validaString("", 1, 50);
-				isCorrect = cartaEnMano(jugadores, pos, nombreCarta);
+				cartaJugada = cartaFromString(nombreCarta);
+				isCorrect = cartaEnMano(jugadores, pos, cartaJugada);
 				if(isCorrect) {
 					carta = cartaFromString(nombreCarta);
 				}
@@ -301,7 +304,8 @@ public class Jugador {
 					System.out.println("El nombre introducido no coincide con ninguna carta de tu mano.");
 				}
 			}while(!isCorrect);
-			jugadores[pos].ultimaJugada[i] = new Carta(carta.getNumero(), carta.getPalo());
+			jugadores[pos].ultimaJugada[i].setNumero(carta.getNumero());
+			jugadores[pos].ultimaJugada[i].setPalo(carta.getPalo());
 			jugadores = sacaCarta(jugadores, pos, carta);
 		}
 		return jugadores;
@@ -314,17 +318,23 @@ public class Jugador {
 	 * @return un boolean true si las 2 últimas jugadas son iguales.
 	 */
 	
-	public static boolean jugadasIguales(Carta[] jugadaActual, Carta[] jugadaAnterior) {
+	public static boolean jugadasIguales(Jugador[] jugadores, int pos) {
 		boolean isEqual = false;
 		int act = 2;
 		int ant = 2;
 		
-		for(int i = 0; i < jugadaActual.length; i++) {
-			if(jugadaActual[i].getNumero() != 2) {
-				act = jugadaActual[i].getNumero();
+		for(int i = 0; i < jugadores[0].getUltimaJugada().length ; i++) {
+			if(jugadores[pos].getUltimaJugada()[i].getNumero() != 2 && jugadores[pos].getUltimaJugada()[i].getNumero() != 0) {
+				act = jugadores[pos].getUltimaJugada()[i].getNumero();
 			}
-			if(jugadaAnterior[i].getNumero() != 2) {
-				ant = jugadaAnterior[i].getNumero();
+			if(pos != 0) {
+				if(jugadores[pos - 1].getUltimaJugada()[i].getNumero() != 2 && jugadores[pos - 1].getUltimaJugada()[i].getNumero() != 0) {
+					ant = jugadores[pos - 1].getUltimaJugada()[i].getNumero();
+				}
+			}else {
+				if(jugadores[jugadores.length - 1].getUltimaJugada()[i].getNumero() != 2 && jugadores[jugadores.length - 1].getUltimaJugada()[i].getNumero() != 0) {
+					ant = jugadores[jugadores.length - 1].getUltimaJugada()[i].getNumero();
+				}
 			}
 		}
 		if(act == ant) {
@@ -360,16 +370,68 @@ public class Jugador {
 	
 	public static Carta cartaFromString(String nombreCarta) {
 		Carta carta = new Carta();
-		
-		carta.setNumero((int) nombreCarta.charAt(0));
-		if(nombreCarta.charAt(5) == 'o') {
-			carta.setPalo("oros");
-		}else if(nombreCarta.charAt(5) == 'c') {
-			carta.setPalo("copas");			
-		}else if(nombreCarta.charAt(5) == 'e') {
-			carta.setPalo("espadas");			
-		}else{
-			carta.setPalo("bastos");			
+		boolean esFigura = false;
+		if(nombreCarta.charAt(0) == '3') {
+			carta.setNumero(3);
+		}else if(nombreCarta.charAt(0) == '4') {
+			carta.setNumero(4);
+		}else if(nombreCarta.charAt(0) == '5') {
+			carta.setNumero(5);
+		}else if(nombreCarta.charAt(0) == '6') {
+			carta.setNumero(6);
+		}else if(nombreCarta.charAt(0) == '7') {
+			carta.setNumero(7);
+		}else if(nombreCarta.charAt(0) == 'S') {
+			carta.setNumero(8);
+			esFigura = true;
+			if(nombreCarta.charAt(8) == 'o') {
+				carta.setPalo("oros");
+			}else if(nombreCarta.charAt(8) == 'c') {
+				carta.setPalo("copas");			
+			}else if(nombreCarta.charAt(8) == 'e') {
+				carta.setPalo("espadas");			
+			}else{
+				carta.setPalo("bastos");			
+			}
+		}else if(nombreCarta.charAt(0) == 'C') {
+			carta.setNumero(9);
+			esFigura = true;
+			if(nombreCarta.charAt(11) == 'o') {
+				carta.setPalo("oros");
+			}else if(nombreCarta.charAt(11) == 'c') {
+				carta.setPalo("copas");			
+			}else if(nombreCarta.charAt(11) == 'e') {
+				carta.setPalo("espadas");			
+			}else{
+				carta.setPalo("bastos");			
+			}
+		}else if(nombreCarta.charAt(0) == 'R') {
+			carta.setNumero(4);
+			esFigura = true;
+			if(nombreCarta.charAt(7) == 'o') {
+				carta.setPalo("oros");
+			}else if(nombreCarta.charAt(7) == 'c') {
+				carta.setPalo("copas");			
+			}else if(nombreCarta.charAt(7) == 'e') {
+				carta.setPalo("espadas");			
+			}else{
+				carta.setPalo("bastos");			
+			}
+		}else if(nombreCarta.charAt(0) == '1') {
+			carta.setNumero(1);
+		}else if(nombreCarta.charAt(0) == '2') {
+			carta.setNumero(2);
+		}
+		if(!esFigura) {
+			if(nombreCarta.charAt(5) == 'o') {
+				carta.setPalo("oros");
+			}else if(nombreCarta.charAt(5) == 'c') {
+				carta.setPalo("copas");			
+			}else if(nombreCarta.charAt(5) == 'e') {
+				carta.setPalo("espadas");			
+			}else{
+				carta.setPalo("bastos");			
+			}
 		}
 		
 		return carta;
@@ -573,6 +635,16 @@ public class Jugador {
 		
 		return arrayDeFlags;
 	}
+	
+	public static Jugador[] creaCartaArray(Jugador[] jugadores) {
+		for(int i = 0; i < jugadores.length; i++) {
+			for(int j = 0; j < jugadores[i].getUltimaJugada().length; j++) {
+				jugadores[i].getUltimaJugada()[j] = new Carta();
+			}
+		}
+		
+		return jugadores;
+	}
 
 	
 	
@@ -671,10 +743,10 @@ public class Jugador {
 	 * @param nombreCarta     String que ha introducido el usuario
 	 * @return    el boolean que dice si la carta está en la mano
 	 */
-	public static boolean cartaEnMano (Jugador[] jugadores, int pos, String nombreCarta) {
+	public static boolean cartaEnMano (Jugador[] jugadores, int pos, Carta carta) {
 	    boolean sonValidas=false;
 	    for (int i=0; i<jugadores[pos].getMano().length; i++){
-	        if(jugadores[pos].getMano()[i].toString() == nombreCarta){
+	        if(jugadores[pos].getMano()[i].getNumero() == carta.getNumero() && jugadores[pos].getMano()[i].getPalo() == carta.getPalo()){
 	            sonValidas=true;
 	        }
 	    }
@@ -714,6 +786,8 @@ public class Jugador {
 	    boolean presidente = false;
 	    int culoPos=0;
 	    int presPos=0;
+	    Carta carta = new Carta();
+	    
 	    for (int i=0; i<jugadores.length; i++){
 	        if(jugadores[i].getRol() == "culo"){
 	            cartasIntercambiables[1].setNumero(jugadores[i].getMano()[0].getNumero());
@@ -728,10 +802,12 @@ public class Jugador {
 	        }else if(jugadores[i].getRol() == "presidente"){
 	            
 	            String cartaPresidente = validaString("Introduce la carta que quieres dar al culo", 1,30);
+	            carta = cartaFromString(cartaPresidente);
+	            
 	            
 	            for (int j=0; j<jugadores[i].getMano().length; j++){
 	                
-	                if(cartaEnMano(jugadores, i, cartaPresidente)){
+	                if(cartaEnMano(jugadores, i, carta)){
 	                    cartasIntercambiables[0].setNumero(jugadores[i].getMano()[j].getNumero());
 	                    cartasIntercambiables[0].setPalo(jugadores[i].getMano()[j].getPalo());
 	                    jugadores = sacaCarta(jugadores, i, cartasIntercambiables[0]);

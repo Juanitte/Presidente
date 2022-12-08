@@ -50,7 +50,10 @@ public class Main {
 		//Creación de array de booleanos para controlar: [0] Fin de turno - [1] Fin de ronda - [2] Fin de partida - [3] Fin de programa - [4] Si el jugador actual ha pasado turno.
 		boolean[] isOver = new boolean[5];
 		
-			//Bucle para empezar una nueva partida en caso de que queden al menos 2 jugadores.
+		//Boolean que controlará si es el 1º turno de la partida.
+		boolean isFirstTurn = true;
+		
+			//Bucle para empezar una nueva partida en caso de que lo elijan los jugadores.
 		do {
 			
 			//Contador de personas seguidas que han pasado turno.
@@ -94,9 +97,9 @@ public class Main {
 						}while(!isOver[0]);
 						
 						//Comparación de las cartas jugadas en este turno y el anterior para saltar el turno del siguiente jugador si se han jugado las mismas cartas en 2 turnos seguidos.
-						if(jugadores[i].getUltimaJugada() != null) {
+						if(!isFirstTurn) {
 							if(i != 0) {
-								if(Jugador.jugadasIguales(jugadores[i].getUltimaJugada(), jugadores[i - 1].getUltimaJugada())) {
+								if(Jugador.jugadasIguales(jugadores, i)) {
 									if(i == jugadores.length - 1) {
 										i = 1;
 									}else {
@@ -104,10 +107,13 @@ public class Main {
 									}
 								}
 							}else {
-								if(Jugador.jugadasIguales(jugadores[i].getUltimaJugada(), jugadores[jugadores.length - 1].getUltimaJugada())) {
+								if(Jugador.jugadasIguales(jugadores, i)) {
 									i++;
 								}
 							}
+							
+						}else {
+							isFirstTurn = false;
 						}
 					}
 					
