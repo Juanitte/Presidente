@@ -246,6 +246,7 @@ public class Jugador {
 				break;
 			case 3:
 				Jugador.verMano(jugadores, pos);
+				isOver[0] = false;
 		}
 		
 		return isOver;
@@ -273,8 +274,11 @@ public class Jugador {
 			}
 		}while(!cartasEnMano(jugadores, numeroCartas, pos));
 		
-		jugadores[pos].ultimaJugada = new Carta[numeroCartas];
-		jugadores = creaCartaArray(jugadores);
+		Carta[] lastPlay = new Carta[numeroCartas];
+		
+		lastPlay = creaCartaArray(jugadores, pos);
+		
+		jugadores[pos].setUltimaJugada(lastPlay);
 		
 		for(int i = 0; i < numeroCartas; i++) {
 			boolean isCorrect = false;
@@ -323,7 +327,7 @@ public class Jugador {
 		int act = 2;
 		int ant = 2;
 		
-		for(int i = 0; i < jugadores[0].getUltimaJugada().length ; i++) {
+		for(int i = 0; i < jugadores[pos].getUltimaJugada().length ; i++) {
 			if(jugadores[pos].getUltimaJugada()[i].getNumero() != 2 && jugadores[pos].getUltimaJugada()[i].getNumero() != 0) {
 				act = jugadores[pos].getUltimaJugada()[i].getNumero();
 			}
@@ -406,7 +410,7 @@ public class Jugador {
 				carta.setPalo("bastos");			
 			}
 		}else if(nombreCarta.charAt(0) == 'R') {
-			carta.setNumero(4);
+			carta.setNumero(10);
 			esFigura = true;
 			if(nombreCarta.charAt(7) == 'o') {
 				carta.setPalo("oros");
@@ -449,7 +453,7 @@ public class Jugador {
 		boolean isThere = false;
 		
 		for(int i = 0; i < jugadores[pos].mano.length && !isThere; i++) {
-			int cont = 1;
+			int cont = 0;
 			for(int j = i; j < jugadores[pos].mano.length && !isThere; j++) {
 				if((jugadores[pos].mano[i].getNumero() == jugadores[pos].mano[j].getNumero()) || (jugadores[pos].mano[j].getNumero() == 2)) {
 					cont++;
@@ -547,27 +551,35 @@ public class Jugador {
 	public static Jugador[] ordenaInicio(Jugador[] jugadores) {
 		Jugador[] jugadoresOrdenados = new Jugador[jugadores.length];
 		boolean isIn = false;
-		int cont = 1;
-		for(int i = 0; i < jugadores.length; i++) {
-			isIn = false;
+		boolean isDone = false;
+		for(int i = 0; i < jugadores.length && !isDone; i++) {
 			for(int j = 0; j < jugadores[i].getMano().length && !isIn; j++) {
 				if(jugadores[i].getMano()[j].is3DeBastos(jugadores[i].getMano()[j])) {
 					isIn = true;
 				}
 			}
 			if(isIn) {
-				jugadoresOrdenados[0] = new Jugador(jugadores.length);
-				jugadoresOrdenados[0].setNombre(jugadores[i].getNombre());
-				jugadoresOrdenados[0].setRol(jugadores[i].getRol());
-				jugadoresOrdenados[0].setMano(jugadores[i].getMano());
-				jugadoresOrdenados[0].setPosicion(1);
-			}else {
-				jugadoresOrdenados[cont] = new Jugador(jugadores.length);
-				jugadoresOrdenados[cont].setNombre(jugadores[i].getNombre());
-				jugadoresOrdenados[cont].setRol(jugadores[i].getRol());
-				jugadoresOrdenados[cont].setMano(jugadores[i].getMano());
-				jugadoresOrdenados[cont].setPosicion(cont + 1);
-				cont++;
+				for(int j = 0; j < jugadores.length; j++) {
+					if(i != jugadores.length - 1) {
+						jugadoresOrdenados[j] = new Jugador(jugadores.length);
+						jugadoresOrdenados[j].setNombre(jugadores[i].getNombre());
+						jugadoresOrdenados[j].setRol(jugadores[i].getRol());
+						jugadoresOrdenados[j].setMano(jugadores[i].getMano());
+						jugadoresOrdenados[j].setPosicion(j + 1);
+						i++;
+					}else {
+						jugadoresOrdenados[j] = new Jugador(jugadores.length);
+						jugadoresOrdenados[j].setNombre(jugadores[i].getNombre());
+						jugadoresOrdenados[j].setRol(jugadores[i].getRol());
+						jugadoresOrdenados[j].setMano(jugadores[i].getMano());
+						jugadoresOrdenados[j].setPosicion(j + 1);
+						i = 0;
+					}
+				}
+				isDone = true;
+				if(i == jugadores.length - 1) {
+					i = -1;
+				}
 			}
 		}
 		
@@ -636,14 +648,18 @@ public class Jugador {
 		return arrayDeFlags;
 	}
 	
-	public static Jugador[] creaCartaArray(Jugador[] jugadores) {
-		for(int i = 0; i < jugadores.length; i++) {
-			for(int j = 0; j < jugadores[i].getUltimaJugada().length; j++) {
-				jugadores[i].getUltimaJugada()[j] = new Carta();
-			}
+	/**
+	 * Método para inicializar el array de cartas ultimaJugada.
+	 * @param jugadores , el array de jugadores.
+	 * @return el array de jugadores modificado.
+	 */
+	
+	public static Carta[] creaCartaArray(Jugador[] jugadores, int pos) {
+		for(int i = 0; i < jugadores[pos].getUltimaJugada().length; i++) {
+			jugadores[pos].getUltimaJugada()[i] = new Carta();
 		}
 		
-		return jugadores;
+		return jugadores[pos].getUltimaJugada();
 	}
 
 	
@@ -824,6 +840,12 @@ public class Jugador {
 	    return jugadores;
 	}
 	
+	/**
+	 * Método que comprueba si hay cartas en la mano de un jugador.
+	 * @param jugadores , el array de jugadores.
+	 * @param pos , la posicion del jugador actual.
+	 * @return Un boolean en true si hay cartas en la mano del jugador y false si no las hay.
+	 */
 	
 	public static boolean hayCartasEnMano(Jugador[]jugadores, int pos) {
 		boolean hayCarta=false;
@@ -832,9 +854,7 @@ public class Jugador {
 				hayCarta=true;
 			}
 		}
-	return hayCarta;
+		return hayCarta;
 	}
-	
-
 }
-		
+	
