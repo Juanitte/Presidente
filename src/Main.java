@@ -53,6 +53,9 @@ public class Main {
 		//Boolean que controlará si es el 1º turno de la partida.
 		boolean isFirstTurn = true;
 		
+		//Inicializado de array de cartas para generar una jugada anterior vacía al pasar turno.
+		Carta[] ultimaJugadaPasa = new Carta[8];
+		
 			//Bucle para empezar una nueva partida en caso de que lo elijan los jugadores.
 		do {
 			
@@ -87,6 +90,8 @@ public class Main {
 							//Comprobación: Si el jugador actual ha pasado turno, suma 1 al contador de personas que han pasado turno.
 							if(isOver[4]) {
 								contPasa++;
+								jugadores[i].setUltimaJugada(ultimaJugadaPasa);
+								jugadores[i].setUltimaJugada(Jugador.creaCartaArray(jugadores, i));
 								
 								//Si el jugador actual NO ha pasado turno, el contador de personas seguidas que pasan turno se resetea a 0.
 							}else {
@@ -97,21 +102,14 @@ public class Main {
 						}while(!isOver[0]);
 						
 						//Comparación de las cartas jugadas en este turno y el anterior para saltar el turno del siguiente jugador si se han jugado las mismas cartas en 2 turnos seguidos.
-						if(!isFirstTurn) {
-							if(i != 0) {
-								if(Jugador.jugadasIguales(jugadores, i)) {
-									if(i == jugadores.length - 1) {
-										i = 1;
-									}else {
-										i++;
-									}
-								}
-							}else {
-								if(Jugador.jugadasIguales(jugadores, i)) {
+						if(!isFirstTurn && contPasa == 0) {
+							if(Jugador.jugadasIguales(jugadores, i)) {
+								if(i == jugadores.length - 1) {
+									i = -1;
+								}else {
 									i++;
 								}
 							}
-							
 						}else {
 							isFirstTurn = false;
 						}
