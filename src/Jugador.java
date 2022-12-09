@@ -6,6 +6,7 @@ public class Jugador {
 	private int posicion;
 	private Carta[] mano;
 	private Carta[] ultimaJugada;
+	private int numeroCartasJugadas;
 
 	/**
 	 * Constructor de la clase Jugador.
@@ -18,6 +19,7 @@ public class Jugador {
 		this.rol = "";
 		this.posicion = 0;
 		this.ultimaJugada = new Carta[8];
+		this.numeroCartasJugadas = 0;
 		this.mano = new Carta[(40 / numeroJugadores) + 1];
 		for(int i = 0; i < mano.length; i++) {
 			this.mano[i] = new Carta();
@@ -113,6 +115,24 @@ public class Jugador {
 	public void setUltimaJugada(Carta[] ultimaJugada) {
 		this.ultimaJugada = ultimaJugada;
 	}
+		
+	/**
+	 * Getter para el atributo numeroCartasJugadas de la clase Jugador.
+	 * @return un entero con el número de cartas jugadas por el jugador.
+	 */
+	
+	public int getNumeroCartasJugadas() {
+		return numeroCartasJugadas;
+	}
+	
+	/**
+	 * Setter para el atributo numeroCartasJugadas de la clase Jugador.
+	 * @param numeroCartasJugadas , el número de cartas jugadas por el jugador.
+	 */
+	
+	public void setNumeroCartasJugadas(int numeroCartasJugadas) {
+		this.numeroCartasJugadas = numeroCartasJugadas;
+	}
 	
 	
 	/**
@@ -175,9 +195,9 @@ public class Jugador {
 			if(nombre.length() <= max && nombre.length() >= min) {
 				isIn = true;
 			}else if(nombre.length() > max){
-				System.out.println("El nombre no puede superar los 20 caracteres.");
+				System.out.println("El texto no puede superar los "+max+" caracteres.");
 			}else {
-				System.out.println("El nombre debe tener al menos 3 caracteres.");
+				System.out.println("El texto debe tener al menos "+min+" caracteres.");
 			}
 		}while(!isIn);
 		
@@ -219,7 +239,7 @@ public class Jugador {
 		System.out.println("3 - Ver Mano.");
 	}
 	
-	public static boolean[] options(Jugador[] jugadores,int pos, boolean[] isOver) {
+	public static boolean[] options(Jugador[] jugadores,int pos, boolean[] isOver, boolean isFirstTurn) {
 		
 		// En isOver[0] se controlará el fin de turno.
 		
@@ -236,13 +256,29 @@ public class Jugador {
 		switch(opt) {
 			case 1:
 				//Aquí además de realizar las acciones de la opción jugar, llena un array con las cartas que se han jugado.
-				jugadores = Jugador.opcionJugar(jugadores, pos);
-				isOver[0] = true;
+				if(isFirstTurn) {
+					jugadores = numeroCartas(jugadores, pos);
+				}else {
+					jugadores = numCartasRonda(jugadores);
+				}
+				if(isFirstTurn || numCartasCorrecto(jugadores, pos)) {
+					jugadores = Jugador.opcionJugar(jugadores, pos, isFirstTurn);
+					isOver[0] = true;
+					if(isFirstTurn && !numCartasCorrecto(jugadores, pos)) {
+						isOver[0] = false;
+					}
+				}else {
+					System.out.println("No tienes cartas suficientes para jugar este turno.");
+				}
 				break;
 			case 2:
-				System.out.println("Has pasado tu turno.");
-				isOver[0] = true;
-				isOver[4] = true;
+				if(!isFirstTurn) {
+					System.out.println("Has pasado tu turno.");
+					isOver[0] = true;
+					isOver[4] = true;
+				}else {
+					System.out.println("No puedes pasar el 1º turno de la ronda.");
+				}
 				break;
 			case 3:
 				Jugador.verMano(jugadores, pos);
@@ -253,13 +289,63 @@ public class Jugador {
 	}
 	
 	/**
+	 * Método para settear el número de cartas jugadas por el jugador.
+	 * @param jugadores , el array de jugadores.
+	 * @param pos , la posición del jugador actual en el array.
+	 * @return el array de jugadores modificado.
+	 */
+	
+	public static Jugador[] numeroCartas(Jugador[] jugadores, int pos) {
+
+		jugadores[pos].setNumeroCartasJugadas(leeEntero("Introduce el número de cartas a jugar: ", 1, 8));
+		
+		if(!numCartasCorrecto(jugadores, pos)) {
+			System.out.println("No tienes suficientes cartas para realizar esta jugada.");
+			jugadores[pos].setNumeroCartasJugadas(0);
+		}	
+		
+		return jugadores;
+	}
+	
+	/**
+	 * Método para comprobar que el número de cartas introducido es correcto.
+	 * @param jugadores , el array de jugadores.
+	 * @param pos , la posición del jugador actual en el array.
+	 * @return un boolean true si la jugada es correcta y false si no lo es.
+	 */
+	
+	public static boolean numCartasCorrecto(Jugador[] jugadores, int pos) {
+		boolean isCorrect = false;
+		
+		if(cartasEnMano(jugadores, jugadores[pos].getNumeroCartasJugadas(), pos)) {
+			isCorrect = true;
+		}
+		
+		return isCorrect;
+	}
+	
+	/**
+	 * Método para llenar el atributo numeroCartasJugadas para que sea en todos los jugadores como en el 1º.
+	 * @param jugadores , el array de jugadores.
+	 * @return el array de jugadores modificado.
+	 */
+	
+	public static Jugador[] numCartasRonda(Jugador[] jugadores) {
+		
+		for(int i = 0; i < jugadores.length; i++) {
+			jugadores[i].setNumeroCartasJugadas(jugadores[0].getNumeroCartasJugadas());
+		}
+		
+		return jugadores;
+	}
+	
+	/**
 	 * Método para realizar las acciones de la opción Jugar.
 	 * @param pos , posición del jugador actual.
 	 */
 	
-	public static Jugador[] opcionJugar(Jugador[] jugadores, int pos) {
+	public static Jugador[] opcionJugar(Jugador[] jugadores, int pos, boolean isFirstTurn) {
 		System.out.println("");
-		int numeroCartas = 0;
 		String nombreCarta = "";
 		boolean areThere = false;
 		Carta carta = new Carta();
@@ -267,51 +353,88 @@ public class Jugador {
 		Carta cartaJugada = new Carta();
 		
 		
-		do {
-			numeroCartas = leeEntero("Introduce el número de cartas a jugar: ", 1, 8);
-			if(!cartasEnMano(jugadores, numeroCartas, pos)) {
-				System.out.println("No tienes suficientes cartas para realizar esta jugada.");
-			}
-		}while(!cartasEnMano(jugadores, numeroCartas, pos));
 		
-		Carta[] lastPlay = new Carta[numeroCartas];
+		if(!isFirstTurn || numCartasCorrecto(jugadores, pos)) {
 		
-		lastPlay = creaCartaArray(jugadores, pos);
-		
-		jugadores[pos].setUltimaJugada(lastPlay);
-		
-		for(int i = 0; i < numeroCartas; i++) {
-			boolean isCorrect = false;
-			do {
-				areThere = false;
-				System.out.println("");
-				System.out.print("Introduce la "+(i + 1)+"ª carta a jugar:");
-				nombreCarta = validaString("", 1, 50);
-				cartaJugada = cartaFromString(nombreCarta);
-				isCorrect = cartaEnMano(jugadores, pos, cartaJugada);
-				if(isCorrect) {
-					carta = cartaFromString(nombreCarta);
-				}
-				if(isCorrect && !areThere) {
-					for(int j = 0; j < jugadores[pos].mano.length; j++) {
-						if(jugadores[pos].mano[j].getNumero() == carta.getNumero()) {
-							auxCartas++;
+			Carta[] lastPlay = new Carta[jugadores[pos].getNumeroCartasJugadas()];
+			
+			lastPlay = creaCartaArray(jugadores, pos);
+			
+			jugadores[pos].setUltimaJugada(lastPlay);
+			
+			for(int i = 0; i < jugadores[pos].getNumeroCartasJugadas(); i++) {
+				boolean isCorrect = false;
+				do {
+					boolean isValid = false;
+					areThere = false;
+					do {
+						int min = 1;
+						System.out.println("");
+						System.out.print("Introduce la "+(i + 1)+"ª carta a jugar:");
+						nombreCarta = validaString("", min, 50);
+						min = setMin(nombreCarta);
+						if(nombreCarta.length() >= min) {
+							isValid = true;
+						}else {
+							System.out.println("Debes introducir un nombre de carta válido.");
 						}
+					}while(!isValid);
+					
+					cartaJugada = cartaFromString(nombreCarta);
+					isCorrect = cartaEnMano(jugadores, pos, cartaJugada);
+					if(isCorrect) {
+						carta = cartaFromString(nombreCarta);
 					}
-					if(auxCartas < numeroCartas) {
-						System.out.println("No tienes suficientes cartas del valor especificado en la mano.");
-						isCorrect = false;
+					if(isCorrect && !areThere) {
+						for(int j = 0; j < jugadores[pos].mano.length; j++) {
+							if(jugadores[pos].mano[j].getNumero() == carta.getNumero()) {
+								auxCartas++;
+							}
+						}
+						if(auxCartas < jugadores[pos].getNumeroCartasJugadas()) {
+							System.out.println("No tienes suficientes cartas del valor especificado en la mano.");
+							isCorrect = false;
+						}else {
+							areThere = true;
+						}
 					}else {
-						areThere = true;
+						System.out.println("El nombre introducido no coincide con ninguna carta de tu mano.");
 					}
-				}else {
-					System.out.println("El nombre introducido no coincide con ninguna carta de tu mano.");
-				}
-			}while(!isCorrect);
-			jugadores[pos].ultimaJugada[i].setNumero(carta.getNumero());
-			jugadores[pos].ultimaJugada[i].setPalo(carta.getPalo());
-			jugadores = sacaCarta(jugadores, pos, carta);
+				}while(!isCorrect);
+				jugadores[pos].ultimaJugada[i].setNumero(carta.getNumero());
+				jugadores[pos].ultimaJugada[i].setPalo(carta.getPalo());
+				jugadores = sacaCarta(jugadores, pos, carta);
+			}
 		}
+		return jugadores;
+	}
+	
+	/**
+	 * Método que marca un mínimo de tamaño de string en función de la carta que se introduzca.
+	 * @param nombreCarta , el string con el nombre de la carta que han introducido.
+	 * @return un int con el tamaño mínimo que debe tener el string.
+	 */
+	
+	public static int setMin(String nombreCarta) {
+		int min = 5;
+		
+		if(nombreCarta.charAt(0) == 'R') {
+			min = 7;
+		}else if(nombreCarta.charAt(0) == 'C') {
+			min = 11;
+		}else if(nombreCarta.charAt(0) == 'S') {
+			min = 8;
+		}
+		
+		return min;
+	}
+	
+	public static Jugador[] limpiaNumeroCartas(Jugador[] jugadores) {
+		
+		for(int i = 0; i < jugadores.length; i++) {
+			jugadores[i].setNumeroCartasJugadas(0);
+		}
+		
 		return jugadores;
 	}
 	
