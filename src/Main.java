@@ -50,9 +50,6 @@ public class Main {
 		//Creación de array de booleanos para controlar: [0] Fin de turno - [1] Fin de ronda - [2] Fin de partida - [3] Fin de programa - [4] Si el jugador actual ha pasado turno.
 		boolean[] isOver = new boolean[5];
 		
-		//Boolean que controlará si es el 1º turno de la partida.
-		boolean isFirstTurn = true;
-		
 		//Inicializado de array de cartas para generar una jugada anterior vacía al pasar turno.
 		Carta[] ultimaJugadaPasa = new Carta[8];
 		
@@ -67,6 +64,9 @@ public class Main {
 		
 			//Bucle para no terminar la partida actual hasta que la flag esté en true.
 			do {
+
+				//Boolean que controlará si es el 1º turno de la partida.
+				boolean isFirstTurn = true;
 				
 				//Bucle para no terminar la ronda actual hasta que la flag esté en true.
 				do {
@@ -79,7 +79,7 @@ public class Main {
 							
 							//Muestra el menú para el jugador[i], lee la opción introducida y actúa en consecuencia. Aquí se rellena el array de booleanos que está explicado arriba (línea 50).
 							Jugador.muestraMenu(jugadores, i);
-							isOver = Jugador.options(jugadores, i, isOver);
+							isOver = Jugador.options(jugadores, i, isOver, isFirstTurn);
 							
 							//Comprobación: Si han pasado todos los jugadores menos 1, reasigna la posición de los jugadores para que el ganador empiece la siguiente ronda y activa el boolean que da por terminada la ronda.
 							if(contPasa == jugadores.length - 1) {
@@ -101,6 +101,8 @@ public class Main {
 							//Aquí se comprueba si hay que terminar el turno del jugador actual.
 						}while(!isOver[0]);
 						
+						isOver[0] = false;;
+						
 						//Comparación de las cartas jugadas en este turno y el anterior para saltar el turno del siguiente jugador si se han jugado las mismas cartas en 2 turnos seguidos.
 						if(!isFirstTurn && contPasa == 0) {
 							if(Jugador.jugadasIguales(jugadores, i)) {
@@ -118,6 +120,9 @@ public class Main {
 					//Aquí se comprueba si hay que terminar la ronda actual.
 				}while(!isOver[1]);
 				
+				jugadores = Jugador.limpiaNumeroCartas(jugadores);
+				
+				isOver[1] = false;
 				//Aquí se limpian las cartas de ultimaJugada.
 				jugadores = Jugador.limpiaUltimaJugada(jugadores);
 				
@@ -127,6 +132,8 @@ public class Main {
 				
 				//Aquí se comprueba si hay que terminar la partida actual.
 			}while(!isOver[2]);
+			
+			isOver[2] = false;
 			
 			//Al terminar una partida se seleccionan las normas en función del número de jugadores.
 			if(thereIsVice) {
