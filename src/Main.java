@@ -80,13 +80,7 @@ public class Main {
 							//Muestra el menú para el jugador[i], lee la opción introducida y actúa en consecuencia. Aquí se rellena el array de booleanos que está explicado arriba (línea 50).
 							Jugador.muestraMenu(jugadores, i);
 							isOver = Jugador.options(jugadores, i, isOver, isFirstTurn);
-							
-							//Comprobación: Si han pasado todos los jugadores menos 1, reasigna la posición de los jugadores para que el ganador empiece la siguiente ronda y activa el boolean que da por terminada la ronda.
-							if(contPasa == jugadores.length - 1) {
-								jugadores = Jugador.asignaPosicion(jugadores, i);
-								isOver[1] = true;
-							}
-							
+														
 							//Comprobación: Si el jugador actual ha pasado turno, suma 1 al contador de personas que han pasado turno.
 							if(isOver[4]) {
 								contPasa++;
@@ -98,6 +92,12 @@ public class Main {
 								contPasa = 0;
 							}
 							
+							//Comprobación: Si han pasado todos los jugadores menos 1, reasigna la posición de los jugadores para que el ganador empiece la siguiente ronda y activa el boolean que da por terminada la ronda.
+							if(contPasa == jugadores.length - 1) {
+								jugadores = Jugador.asignaPosicion(jugadores, i);
+								isOver[1] = true;
+							}
+														
 							//Aquí se comprueba si hay que terminar el turno del jugador actual.
 						}while(!isOver[0]);
 						
