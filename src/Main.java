@@ -55,10 +55,7 @@ public class Main {
 		
 			//Bucle para empezar una nueva partida en caso de que lo elijan los jugadores.
 		do {
-			
-			//Contador de personas seguidas que han pasado turno.
-			int contPasa = 0;
-			
+						
 			//Inicializador a false de todo el array de booleanos.
 			isOver = Jugador.creaFlagArray(isOver);
 		
@@ -67,35 +64,43 @@ public class Main {
 
 				//Boolean que controlará si es el 1º turno de la partida.
 				boolean isFirstTurn = true;
+
+				//Indicador del ganador de la ronda.
+				int posGanaRonda = -1;
+				
+				//Contador de personas que han pasado turno seguidas.
+				int contPasa = 1;
 				
 				//Bucle para no terminar la ronda actual hasta que la flag esté en true.
 				do {
 					
 					//Bucle for para elegir el jugador al que le toca el turno en base a su posición en el array de jugadores.
-					for(int i = 0; i < jugadores.length; i++) {
+					for(int i = 0; i < jugadores.length && !isOver[1]; i++) {
 						
 						//Bucle para no terminar el turno del jugador actual hasta que la flag esté en true.
 						do {
 							
-							//Muestra el menú para el jugador[i], lee la opción introducida y actúa en consecuencia. Aquí se rellena el array de booleanos que está explicado arriba (línea 50).
-							Jugador.muestraMenu(jugadores, i);
-							isOver = Jugador.options(jugadores, i, isOver, isFirstTurn);
-														
-							//Comprobación: Si el jugador actual ha pasado turno, suma 1 al contador de personas que han pasado turno.
-							if(isOver[4]) {
-								contPasa++;
-								jugadores[i].setUltimaJugada(ultimaJugadaPasa);
-								jugadores[i].setUltimaJugada(Jugador.creaCartaArray(jugadores, i));
-								
-								//Si el jugador actual NO ha pasado turno, el contador de personas seguidas que pasan turno se resetea a 0.
-							}else {
-								contPasa = 0;
-							}
-							
 							//Comprobación: Si han pasado todos los jugadores menos 1, reasigna la posición de los jugadores para que el ganador empiece la siguiente ronda y activa el boolean que da por terminada la ronda.
-							if(contPasa == jugadores.length - 1) {
-								jugadores = Jugador.asignaPosicion(jugadores, i);
+							if(posGanaRonda == i) {
+								jugadores = Jugador.asignaPosicion(jugadores, i - 1);
 								isOver[1] = true;
+								isOver[0] = true;
+							}else {
+							
+								//Muestra el menú para el jugador[i], lee la opción introducida y actúa en consecuencia. Aquí se rellena el array de booleanos que está explicado arriba (línea 50).
+								Jugador.muestraMenu(jugadores, i);
+								isOver = Jugador.options(jugadores, i, isOver, isFirstTurn);
+															
+								//Comprobación: Si el jugador actual ha pasado turno, suma 1 al contador de personas que han pasado turno.
+								if(isOver[4]) {
+									jugadores[i].setUltimaJugada(ultimaJugadaPasa);
+									jugadores[i].setUltimaJugada(Jugador.creaCartaArray(jugadores, i));
+									contPasa++;
+									
+									//Si el jugador actual NO ha pasado turno, el contador de personas seguidas que pasan turno se resetea a 0.
+								}else if(isOver[0]){
+									posGanaRonda = i;
+								}
 							}
 														
 							//Aquí se comprueba si hay que terminar el turno del jugador actual.
@@ -104,13 +109,16 @@ public class Main {
 						isOver[0] = false;;
 						
 						//Comparación de las cartas jugadas en este turno y el anterior para saltar el turno del siguiente jugador si se han jugado las mismas cartas en 2 turnos seguidos.
-						if(!isFirstTurn && contPasa == 0) {
-							if(Jugador.jugadasIguales(jugadores, i)) {
+						if(!isFirstTurn && !isOver[4]) {
+							if(Jugador.jugadasIguales(jugadores, i, contPasa)) {
 								if(i == jugadores.length - 1) {
 									i = -1;
 								}else {
 									i++;
 								}
+								jugadores[i].setUltimaJugada(ultimaJugadaPasa);
+								jugadores[i].setUltimaJugada(Jugador.creaCartaArray(jugadores, i));
+								contPasa++;
 							}
 						}else {
 							isFirstTurn = false;
