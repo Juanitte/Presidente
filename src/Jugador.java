@@ -264,8 +264,10 @@ public class Jugador {
 				if(isFirstTurn || numCartasCorrecto(jugadores, pos)) {
 					jugadores = Jugador.opcionJugar(jugadores, pos, isFirstTurn);
 					isOver[0] = true;
+					isOver[4] = false;
 					if(isFirstTurn && !numCartasCorrecto(jugadores, pos)) {
 						isOver[0] = false;
+						isOver[4] = false;
 					}
 				}else {
 					System.out.println("No tienes cartas suficientes para jugar este turno.");
@@ -283,6 +285,7 @@ public class Jugador {
 			case 3:
 				Jugador.verMano(jugadores, pos);
 				isOver[0] = false;
+				isOver[4] = false;
 		}
 		
 		return isOver;
@@ -445,25 +448,27 @@ public class Jugador {
 	 * @return un boolean true si las 2 últimas jugadas son iguales.
 	 */
 	
-	public static boolean jugadasIguales(Jugador[] jugadores, int pos) {
+	public static boolean jugadasIguales(Jugador[] jugadores, int pos, int contPasa) {
 		boolean isEqual = false;
 		int act = 2;
 		int ant = 2;
+			
 		
-		for(int i = 0; i < jugadores[pos].getUltimaJugada().length ; i++) {
-			if(jugadores[pos].getUltimaJugada()[i].getNumero() != 2 && jugadores[pos].getUltimaJugada()[i].getNumero() != 0) {
-				act = jugadores[pos].getUltimaJugada()[i].getNumero();
-			}
-			if(pos != 0) {
-				if(jugadores[pos - 1].getUltimaJugada()[i].getNumero() != 2 && jugadores[pos - 1].getUltimaJugada()[i].getNumero() != 0) {
-					ant = jugadores[pos - 1].getUltimaJugada()[i].getNumero();
+			for(int i = 0; i < jugadores[pos].getUltimaJugada().length ; i++) {
+				if(jugadores[pos].getUltimaJugada()[i].getNumero() != 2 && jugadores[pos].getUltimaJugada()[i].getNumero() != 0) {
+					act = jugadores[pos].getUltimaJugada()[i].getNumero();
 				}
-			}else {
-				if(jugadores[jugadores.length - 1].getUltimaJugada()[i].getNumero() != 2 && jugadores[jugadores.length - 1].getUltimaJugada()[i].getNumero() != 0) {
-					ant = jugadores[jugadores.length - 1].getUltimaJugada()[i].getNumero();
+				if(pos - contPasa >= 0) {
+					if(jugadores[pos - contPasa].getUltimaJugada()[i].getNumero() != 2 && jugadores[pos - contPasa].getUltimaJugada()[i].getNumero() != 0) {
+						ant = jugadores[pos - contPasa].getUltimaJugada()[i].getNumero();
+					}
+				}else {
+					if(jugadores[jugadores.length - contPasa].getUltimaJugada()[i].getNumero() != 2 && jugadores[jugadores.length - contPasa].getUltimaJugada()[i].getNumero() != 0) {
+						ant = jugadores[jugadores.length - contPasa].getUltimaJugada()[i].getNumero();
+					}
 				}
 			}
-		}
+		
 		if(act == ant) {
 			isEqual = true;
 		}
