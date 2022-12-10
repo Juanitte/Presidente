@@ -744,10 +744,16 @@ public class Jugador {
 	public static Jugador[] asignaPosicion(Jugador[] jugadores, int pos) {
 		
 		for(int i = 0; i < jugadores.length; i++) {
-			jugadores[pos].setPosicion(i + 1);
-			if(pos == jugadores.length - 1) {
-				pos = 0;
+			if(pos + 1 < jugadores.length) {
+				jugadores[pos + 1].setPosicion(i + 1);
+				if(pos == jugadores.length - 1) {
+					pos = 0;
+				}else {
+					pos++;
+				}
 			}else {
+				pos = -1;
+				jugadores[pos + 1].setPosicion(i + 1);
 				pos++;
 			}
 		}
