@@ -239,7 +239,7 @@ public class Jugador {
 		System.out.println("3 - Ver Mano.");
 	}
 	
-	public static boolean[] options(Jugador[] jugadores,int pos, boolean[] isOver, boolean isFirstTurn) {
+	public static boolean[] options(Jugador[] jugadores,int pos, boolean[] isOver, boolean isFirstTurn, Carta cartaASuperar) {
 		
 		// En isOver[0] se controlará el fin de turno.
 		
@@ -257,15 +257,15 @@ public class Jugador {
 			case 1:
 				//Aquí además de realizar las acciones de la opción jugar, llena un array con las cartas que se han jugado.
 				if(isFirstTurn) {
-					jugadores = numeroCartas(jugadores, pos);
+					jugadores = numeroCartas(jugadores, pos, cartaASuperar);
 				}else {
 					jugadores = numCartasRonda(jugadores);
 				}
-				if(isFirstTurn || numCartasCorrecto(jugadores, pos)) {
-					jugadores = Jugador.opcionJugar(jugadores, pos, isFirstTurn);
+				if(isFirstTurn || numCartasCorrecto(jugadores, pos, cartaASuperar)) {
+					jugadores = Jugador.opcionJugar(jugadores, pos, isFirstTurn, cartaASuperar);
 					isOver[0] = true;
 					isOver[4] = false;
-					if(isFirstTurn && !numCartasCorrecto(jugadores, pos)) {
+					if(isFirstTurn && !numCartasCorrecto(jugadores, pos, cartaASuperar)) {
 						isOver[0] = false;
 						isOver[4] = false;
 					}
@@ -298,11 +298,11 @@ public class Jugador {
 	 * @return el array de jugadores modificado.
 	 */
 	
-	public static Jugador[] numeroCartas(Jugador[] jugadores, int pos) {
+	public static Jugador[] numeroCartas(Jugador[] jugadores, int pos, Carta cartaASuperar) {
 
 		jugadores[pos].setNumeroCartasJugadas(leeEntero("Introduce el número de cartas a jugar: ", 1, 8));
 		
-		if(!numCartasCorrecto(jugadores, pos)) {
+		if(!numCartasCorrecto(jugadores, pos, cartaASuperar)) {
 			System.out.println("No tienes suficientes cartas para realizar esta jugada.");
 			jugadores[pos].setNumeroCartasJugadas(0);
 		}	
@@ -317,10 +317,10 @@ public class Jugador {
 	 * @return un boolean true si la jugada es correcta y false si no lo es.
 	 */
 	
-	public static boolean numCartasCorrecto(Jugador[] jugadores, int pos) {
+	public static boolean numCartasCorrecto(Jugador[] jugadores, int pos, Carta cartaASuperar) {
 		boolean isCorrect = false;
 		
-		if(cartasEnMano(jugadores, jugadores[pos].getNumeroCartasJugadas(), pos)) {
+		if(cartasEnMano(jugadores, jugadores[pos].getNumeroCartasJugadas(), pos, cartaASuperar)) {
 			isCorrect = true;
 		}
 		
@@ -347,7 +347,7 @@ public class Jugador {
 	 * @param pos , posición del jugador actual.
 	 */
 	
-	public static Jugador[] opcionJugar(Jugador[] jugadores, int pos, boolean isFirstTurn) {
+	public static Jugador[] opcionJugar(Jugador[] jugadores, int pos, boolean isFirstTurn, Carta cartaASuperar) {
 		System.out.println("");
 		String nombreCarta = "";
 		boolean areThere = false;
@@ -357,7 +357,7 @@ public class Jugador {
 		
 		
 		
-		if(!isFirstTurn || numCartasCorrecto(jugadores, pos)) {
+		if(!isFirstTurn || numCartasCorrecto(jugadores, pos, cartaASuperar)) {
 		
 			Carta[] lastPlay = new Carta[jugadores[pos].getNumeroCartasJugadas()];
 			
@@ -370,7 +370,9 @@ public class Jugador {
 				do {
 					boolean isValid = false;
 					areThere = false;
+					boolean isOK = false;
 					do {
+						isOK = false;
 						int min = 1;
 						System.out.println("");
 						System.out.print("Introduce la "+(i + 1)+"ª carta a jugar:");
@@ -381,7 +383,13 @@ public class Jugador {
 						}else {
 							System.out.println("Debes introducir un nombre de carta válido.");
 						}
-					}while(!isValid);
+						if(isValid) {
+							isOK = compruebaValores(cartaASuperar, nombreCarta);
+						}
+						if(!isOK) {
+							System.out.println("La carta introducida no es del valor adecuado.");
+						}
+					}while(!isOK);
 					
 					cartaJugada = cartaFromString(nombreCarta);
 					isCorrect = cartaEnMano(jugadores, pos, cartaJugada);
@@ -410,6 +418,60 @@ public class Jugador {
 			}
 		}
 		return jugadores;
+	}
+	
+	/**
+	 * Método para comparar si la carta introducida es igual o superior a la anterior.
+	 * @param cartaASuperar , la carta a superar.
+	 * @param nombreCarta , el string introducido por el jugador, con el nombre de la carta.
+	 * @return un boolean true si la carta es jugable y false si no lo es.
+	 */
+	
+	public static boolean compruebaValores(Carta cartaASuperar, String nombreCarta) {
+		
+		boolean isOK = false;
+		Carta carta = new Carta();
+		
+		carta = cartaFromString(nombreCarta);
+		if(cartaASuperar.getNumero() == 2 && cartaASuperar.getPalo() != "oros") {
+			if(carta.getNumero() == 2) {
+				isOK = true;
+			}
+		}else if(cartaASuperar.getNumero() == 1) {
+			if(carta.getNumero() == 2 || carta.getNumero() == 1) {
+				isOK = true;
+			}
+		}else {
+			if(carta.getNumero() >= cartaASuperar.getNumero() || carta.getNumero() == 1 || carta.getNumero() == 2) {
+				isOK = true;
+			}
+		}
+		
+		return isOK;
+	}
+	
+	/**
+	 * Método que devuelve la última carta jugada.
+	 * @param jugadores , el array de jugadores.
+	 * @param pos , la posición del jugador actual.
+	 * @return un objeto de clase Carta con el valor de la última carta jugada.
+	 */
+	
+	public static Carta compruebaJugada(Jugador[] jugadores, int pos) {
+		
+		Carta carta = new Carta();
+		
+		for(int i = 0; i < jugadores[pos].getUltimaJugada().length; i++) {
+			if(jugadores[pos].getUltimaJugada()[i].getNumero() !=2 && jugadores[pos].getUltimaJugada()[i].getNumero() !=0) {
+				carta.setNumero(jugadores[pos].getUltimaJugada()[i].getNumero());
+				carta.setPalo(jugadores[pos].getUltimaJugada()[i].getPalo());
+			}else if(jugadores[pos].getUltimaJugada()[i].getNumero() !=0) {
+				carta.setNumero(2);
+				carta.setPalo(jugadores[pos].getUltimaJugada()[i].getPalo());
+			}
+		}
+		
+		return carta;
 	}
 	
 	/**
@@ -577,17 +639,28 @@ public class Jugador {
 	 * @return un boolean true si tiene las cartas especificadas en la mano, false si no las tiene.
 	 */
 	
-	public static boolean cartasEnMano(Jugador[] jugadores, int numeroCartas, int pos) {
+	public static boolean cartasEnMano(Jugador[] jugadores, int numeroCartas, int pos, Carta cartaASuperar) {
 		boolean isThere = false;
 		
 		for(int i = 0; i < jugadores[pos].mano.length && !isThere; i++) {
 			int cont = 0;
 			for(int j = i; j < jugadores[pos].mano.length && !isThere; j++) {
-				if((jugadores[pos].mano[i].getNumero() == jugadores[pos].mano[j].getNumero()) || (jugadores[pos].mano[j].getNumero() == 2)) {
-					cont++;
-					if(cont == numeroCartas) {
-						isThere = true;
+				if(cartaASuperar.getNumero() == 1) {
+					if(((jugadores[pos].mano[i].getNumero() == jugadores[pos].mano[j].getNumero()) || (jugadores[pos].mano[j].getNumero() == 2)) && (jugadores[pos].getMano()[i].getNumero() == 1 || jugadores[pos].getMano()[i].getNumero() == 2)) {
+						cont++;
 					}
+				}else if(cartaASuperar.getNumero() == 2 && cartaASuperar.getPalo() != "oros") {
+					if(jugadores[pos].getMano()[i].getNumero() == 2) {
+						cont++;
+					}
+				}else {
+					if((jugadores[pos].getMano()[i].getNumero() == jugadores[pos].getMano()[j].getNumero() || jugadores[pos].getMano()[j].getNumero() == 2) && (jugadores[pos].getMano()[i].getNumero() >= cartaASuperar.getNumero() || jugadores[pos].getMano()[i].getNumero() == 2 || jugadores[pos].getMano()[i].getNumero() == 1)) {
+						cont++;
+					}
+				}
+
+				if(cont == numeroCartas) {
+					isThere = true;
 				}
 			}
 		}

@@ -71,6 +71,9 @@ public class Main {
 				//Contador de personas que han pasado turno seguidas.
 				int contPasa = 1;
 				
+				//Indicador de la carta a superar.
+				Carta cartaASuperar = new Carta();
+				
 				//Bucle para no terminar la ronda actual hasta que la flag esté en true.
 				do {
 					
@@ -89,7 +92,7 @@ public class Main {
 							
 								//Muestra el menú para el jugador[i], lee la opción introducida y actúa en consecuencia. Aquí se rellena el array de booleanos que está explicado arriba (línea 50).
 								Jugador.muestraMenu(jugadores, i);
-								isOver = Jugador.options(jugadores, i, isOver, isFirstTurn);
+								isOver = Jugador.options(jugadores, i, isOver, isFirstTurn, cartaASuperar);
 															
 								//Comprobación: Si el jugador actual ha pasado turno, suma 1 al contador de personas que han pasado turno.
 								if(isOver[4]) {
@@ -100,6 +103,7 @@ public class Main {
 									//Si el jugador actual NO ha pasado turno, el contador de personas seguidas que pasan turno se resetea a 0.
 								}else if(isOver[0]){
 									posGanaRonda = i;
+									cartaASuperar = Jugador.compruebaJugada(jugadores, i);
 								}
 							}
 														
@@ -112,7 +116,7 @@ public class Main {
 						if(!isFirstTurn && !isOver[4]) {
 							if(Jugador.jugadasIguales(jugadores, i, contPasa)) {
 								if(i == jugadores.length - 1) {
-									i = -1;
+									i = 0;
 								}else {
 									i++;
 								}
