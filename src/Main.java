@@ -80,6 +80,8 @@ public class Main {
 					//Bucle for para elegir el jugador al que le toca el turno en base a su posición en el array de jugadores.
 					for(int i = 0; i < jugadores.length && !isOver[1]; i++) {
 						
+						isOver[4] = false;
+						
 						//Bucle para no terminar el turno del jugador actual hasta que la flag esté en true.
 						do {
 							
@@ -110,23 +112,29 @@ public class Main {
 							//Aquí se comprueba si hay que terminar el turno del jugador actual.
 						}while(!isOver[0]);
 						
-						isOver[0] = false;;
+						
 						
 						//Comparación de las cartas jugadas en este turno y el anterior para saltar el turno del siguiente jugador si se han jugado las mismas cartas en 2 turnos seguidos.
 						if(!isFirstTurn && !isOver[4]) {
 							if(Jugador.jugadasIguales(jugadores, i, contPasa)) {
 								if(i == jugadores.length - 1) {
 									i = 0;
+									isOver[4] = true;
 								}else {
 									i++;
+									isOver[4] = true;
 								}
 								jugadores[i].setUltimaJugada(ultimaJugadaPasa);
 								jugadores[i].setUltimaJugada(Jugador.creaCartaArray(jugadores, i));
-								contPasa++;
+								contPasa = 2;
 							}
 						}else {
 							isFirstTurn = false;
 						}
+						if(!isOver[4]) {
+							contPasa = 1;
+						}
+						isOver[0] = false;
 					}
 					
 					//Aquí se comprueba si hay que terminar la ronda actual.

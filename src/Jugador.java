@@ -280,6 +280,8 @@ public class Jugador {
 					isOver[4] = true;
 				}else {
 					System.out.println("No puedes pasar el 1º turno de la ronda.");
+					isOver[0] = false;
+					isOver[4] = false;
 				}
 				break;
 			case 3:
