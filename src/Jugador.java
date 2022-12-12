@@ -400,7 +400,7 @@ public class Jugador {
 					}
 					if(isCorrect && !areThere) {
 						for(int j = 0; j < jugadores[pos].mano.length; j++) {
-							if(jugadores[pos].mano[j].getNumero() == carta.getNumero()) {
+							if(jugadores[pos].mano[j].getNumero() == carta.getNumero() || jugadores[pos].getMano()[j].getNumero() == 2) {
 								auxCartas++;
 							}
 						}
@@ -646,18 +646,37 @@ public class Jugador {
 		
 		for(int i = 0; i < jugadores[pos].mano.length && !isThere; i++) {
 			int cont = 0;
+			int aux = 0;
 			for(int j = i; j < jugadores[pos].mano.length && !isThere; j++) {
 				if(cartaASuperar.getNumero() == 1) {
-					if(((jugadores[pos].mano[i].getNumero() == jugadores[pos].mano[j].getNumero()) || (jugadores[pos].mano[j].getNumero() == 2)) && (jugadores[pos].getMano()[i].getNumero() == 1 || jugadores[pos].getMano()[i].getNumero() == 2)) {
+					if(((jugadores[pos].mano[i].getNumero() == jugadores[pos].mano[j].getNumero()) || (jugadores[pos].mano[j].getNumero() == 2)) && (jugadores[pos].getMano()[j].getNumero() == 1 || jugadores[pos].getMano()[j].getNumero() == 2)) {
 						cont++;
+					}else if(jugadores[pos].getMano()[i].getNumero() == 2) {
+						if(aux == 0) {
+							aux = jugadores[pos].getMano()[j].getNumero();
+							cont++;
+						}else {
+							if(jugadores[pos].getMano()[j].getNumero() == aux) {
+								cont++;
+							}
+						}
 					}
 				}else if(cartaASuperar.getNumero() == 2 && cartaASuperar.getPalo() != "oros") {
-					if(jugadores[pos].getMano()[i].getNumero() == 2) {
+					if(jugadores[pos].getMano()[j].getNumero() == 2) {
 						cont++;
 					}
 				}else {
-					if((jugadores[pos].getMano()[i].getNumero() == jugadores[pos].getMano()[j].getNumero() || jugadores[pos].getMano()[j].getNumero() == 2) && (jugadores[pos].getMano()[i].getNumero() >= cartaASuperar.getNumero() || jugadores[pos].getMano()[i].getNumero() == 2 || jugadores[pos].getMano()[i].getNumero() == 1)) {
+					if((jugadores[pos].getMano()[i].getNumero() == jugadores[pos].getMano()[j].getNumero() || jugadores[pos].getMano()[j].getNumero() == 2) && (jugadores[pos].getMano()[j].getNumero() >= cartaASuperar.getNumero() || jugadores[pos].getMano()[j].getNumero() == 2 || jugadores[pos].getMano()[j].getNumero() == 1)) {
 						cont++;
+					}else if(jugadores[pos].getMano()[i].getNumero() == 2) {
+						if(aux == 0) {
+							aux = jugadores[pos].getMano()[j].getNumero();
+							cont++;
+						}else {
+							if(jugadores[pos].getMano()[j].getNumero() == aux) {
+								cont++;
+							}
+						}
 					}
 				}
 
@@ -725,7 +744,7 @@ public class Jugador {
 				if(mano[j].getNumero() == 2) {
 					if(mano[j].getPalo() == "oros") {
 						posMax = j;
-					}else if(mano[posMax].getPalo() != "oros") {
+					}else {
 						posMax = j;
 					}
 				}else if(mano[j].getNumero() == 1 && mano[posMax].getNumero() != 2) {
@@ -737,6 +756,7 @@ public class Jugador {
 			if(mano[posMax].getNumero() != 0) {
 				manoNueva[i] = new Carta(mano[posMax].getNumero(), mano[posMax].getPalo());
 				mano[posMax].setNumero(0);
+				mano[posMax].setPalo("");
 			}else {
 				manoNueva[i] = new Carta();
 			}
