@@ -652,13 +652,13 @@ public class Jugador {
 					if(((jugadores[pos].mano[i].getNumero() == jugadores[pos].mano[j].getNumero()) || (jugadores[pos].mano[j].getNumero() == 2)) && (jugadores[pos].getMano()[j].getNumero() == 1 || jugadores[pos].getMano()[j].getNumero() == 2)) {
 						cont++;
 					}else if(jugadores[pos].getMano()[i].getNumero() == 2) {
-						if(aux == 0) {
+						if(aux == 0 || aux == 2) {
 							aux = jugadores[pos].getMano()[j].getNumero();
 							cont++;
 						}else {
 							if(jugadores[pos].getMano()[j].getNumero() == aux) {
 								cont++;
-							}
+							}	
 						}
 					}
 				}else if(cartaASuperar.getNumero() == 2 && cartaASuperar.getPalo() != "oros") {
@@ -666,10 +666,8 @@ public class Jugador {
 						cont++;
 					}
 				}else {
-					if((jugadores[pos].getMano()[i].getNumero() == jugadores[pos].getMano()[j].getNumero() || jugadores[pos].getMano()[j].getNumero() == 2) && (jugadores[pos].getMano()[j].getNumero() >= cartaASuperar.getNumero() || jugadores[pos].getMano()[j].getNumero() == 2 || jugadores[pos].getMano()[j].getNumero() == 1)) {
-						cont++;
-					}else if(jugadores[pos].getMano()[i].getNumero() == 2) {
-						if(aux == 0) {
+					if(jugadores[pos].getMano()[i].getNumero() == 2) {
+						if(aux == 0 || aux == 2) {
 							aux = jugadores[pos].getMano()[j].getNumero();
 							cont++;
 						}else {
@@ -677,10 +675,12 @@ public class Jugador {
 								cont++;
 							}
 						}
+					}else if((jugadores[pos].getMano()[i].getNumero() == jugadores[pos].getMano()[j].getNumero() || jugadores[pos].getMano()[j].getNumero() == 2) && (jugadores[pos].getMano()[j].getNumero() >= cartaASuperar.getNumero() || jugadores[pos].getMano()[j].getNumero() == 2 || jugadores[pos].getMano()[j].getNumero() == 1)) {
+						cont++;
 					}
 				}
 
-				if(cont == numeroCartas) {
+				if(cont >= numeroCartas) {
 					isThere = true;
 				}
 			}

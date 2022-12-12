@@ -155,10 +155,7 @@ public class Main {
 			
 			isOver[2] = false;
 			
-			//Al terminar una partida se seleccionan las normas en función del número de jugadores.
-			if(thereIsVice) {
-				
-			}
+			
 			
 			//Aquí se comprueba si hay que terminar el programa.
 		}while(!isOver[3]);
