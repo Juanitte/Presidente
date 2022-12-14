@@ -276,7 +276,7 @@ public class Jugador {
 						jugadores = Jugador.opcionJugar(jugadores, pos, isFirstTurn, cartaASuperar);
 						isOver[0] = true;
 						isOver[4] = false;
-						if((isFirstTurn && !numCartasCorrecto(jugadores, pos, cartaASuperar)) || jugadores[pos].getNumeroCartasJugadas() == 0) {
+						if((isFirstTurn && !numCartasCorrecto(jugadores, pos, cartaASuperar)) || jugadores[pos].getNumeroCartasJugadas() == 0 || jugadores[pos].getUltimaJugada()[0].getNumero() == 0) {
 							isOver[0] = false;
 							isOver[4] = false;
 						}
@@ -375,6 +375,7 @@ public class Jugador {
 		Carta carta = new Carta();
 		int auxCartas = 0;
 		Carta cartaJugada = new Carta();
+		boolean isCero = false;
 		
 		
 		
@@ -382,58 +383,71 @@ public class Jugador {
 		
 			
 			
-			for(int i = 0; i < jugadores[pos].getNumeroCartasJugadas(); i++) {
+			for(int i = 0; i < jugadores[pos].getNumeroCartasJugadas() && !isCero; i++) {
 				boolean isCorrect = false;
+				isCero = false;
 				do {
 					boolean isValid = false;
 					auxCartas = 0;
 					boolean isOK = false;
 					do {
 						isOK = false;
-						int min = 5;
+						int min = 1;
 						System.out.println("");
-						System.out.print("Introduce la "+(i + 1)+"ª carta a jugar:");
+						System.out.print("Introduce la "+(i + 1)+"ª carta a jugar (0 para volver al menú) : ");
 						nombreCarta = validaString("", min, 50);
-						min = setMin(nombreCarta);
-						if(nombreCarta.length() >= min) {
-							isValid = true;
+						if(nombreCarta.charAt(0) == '0') {
+							isCero = true;
+							isCorrect = true;
+							min = 1;
+							isOK = true;
 						}else {
-							System.out.println("Debes introducir un nombre de carta válido.");
+							min = setMin(nombreCarta);
 						}
-						if(isValid) {
-							isOK = compruebaValores(cartaASuperar, nombreCarta);
-							if(!isOK) {
-								System.out.println("La carta introducida no es del valor adecuado.");
+						if(!isCero) {
+							if(nombreCarta.length() >= min) {
+								isValid = true;
+							}else {
+								System.out.println("Debes introducir un nombre de carta válido.");
+							}
+							if(isValid) {
+								isOK = compruebaValores(cartaASuperar, nombreCarta);
+								if(!isOK) {
+									System.out.println("La carta introducida no es del valor adecuado.");
+								}
 							}
 						}
 						
 					}while(!isOK);
-					
-					cartaJugada = cartaFromString(nombreCarta);
-					isCorrect = cartaEnMano(jugadores, pos, cartaJugada);
-					if(isCorrect) {
-						carta = cartaFromString(nombreCarta);
-					}
-					if(isCorrect && !areThere) {
-						for(int j = 0; j < jugadores[pos].mano.length; j++) {
-							if(jugadores[pos].mano[j].getNumero() == carta.getNumero() || jugadores[pos].getMano()[j].getNumero() == 2) {
-								auxCartas++;
+					if(!isCero) {
+						cartaJugada = cartaFromString(nombreCarta);
+						isCorrect = cartaEnMano(jugadores, pos, cartaJugada);
+						if(isCorrect) {
+							carta = cartaFromString(nombreCarta);
+						}
+						if(isCorrect && !areThere) {
+							for(int j = 0; j < jugadores[pos].mano.length; j++) {
+								if(jugadores[pos].mano[j].getNumero() == carta.getNumero() || jugadores[pos].getMano()[j].getNumero() == 2) {
+									auxCartas++;
+								}
 							}
+							if(auxCartas < jugadores[pos].getNumeroCartasJugadas()) {
+								System.out.println("No tienes suficientes cartas del valor especificado en la mano.");
+								isCorrect = false;
+							}else {
+								areThere = true;
+							}
+						}else if(!isCorrect && !areThere){
+							System.out.println("El nombre introducido no coincide con ninguna carta de tu mano.");
 						}
-						if(auxCartas < jugadores[pos].getNumeroCartasJugadas()) {
-							System.out.println("No tienes suficientes cartas del valor especificado en la mano.");
-							isCorrect = false;
-						}else {
-							areThere = true;
-						}
-					}else if(!isCorrect && !areThere){
-						System.out.println("El nombre introducido no coincide con ninguna carta de tu mano.");
 					}
 				}while(!isCorrect);
 				jugadores[pos].getUltimaJugada()[i] = new Carta();
-				jugadores[pos].getUltimaJugada()[i].setNumero(carta.getNumero());
-				jugadores[pos].getUltimaJugada()[i].setPalo(carta.getPalo());
-				jugadores = sacaCarta(jugadores, pos, carta);
+				if(!isCero) {
+					jugadores[pos].getUltimaJugada()[i].setNumero(carta.getNumero());
+					jugadores[pos].getUltimaJugada()[i].setPalo(carta.getPalo());
+					jugadores = sacaCarta(jugadores, pos, carta);
+				}
 			}
 		}
 		return jugadores;
