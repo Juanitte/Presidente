@@ -1079,16 +1079,14 @@ public class Jugador {
 		            culoPos=i;
 		            System.out.println("El culo le ha dado un "+cartasIntercambiables[0].toString()+" al presidente.");
 		        }else if(jugadores[i].getRol() == "presidente"){
+		        	verMano(jugadores, i);
 		            do {
 			            String cartaPresidente = validaString("Introduce la carta que quieres dar al culo :", 1,30);
 			            carta = cartaFromString(cartaPresidente);
-			            
-			            
-			            for (int j=0; j<jugadores[i].getMano().length; j++){
 			                
 			                if(cartaEnMano(jugadores, i, carta)){
-			                    cartasIntercambiables[1].setNumero(jugadores[i].getMano()[j].getNumero());
-			                    cartasIntercambiables[1].setPalo(jugadores[i].getMano()[j].getPalo());
+			                    cartasIntercambiables[1].setNumero(carta.getNumero());
+			                    cartasIntercambiables[1].setPalo(carta.getPalo());
 			                    jugadores = sacaCarta(jugadores, i, cartasIntercambiables[1]);
 			                    presPos=i;
 			                    isDone = true;
@@ -1096,7 +1094,6 @@ public class Jugador {
 			                	System.out.println("Introduce una carta válida.");
 			                	isDone = false;
 			                }
-			            }
 		            }while(!isDone);
 		            isDone = false;
 		        }
@@ -1124,43 +1121,37 @@ public class Jugador {
 
 		            for(int k = 2; k < 4; k++) {
 		            	do {
+				        	verMano(jugadores, i);
 				            String cartaPresidente = validaString("Introduce la "+(k - 1)+"º carta que quieres dar al culo", 1,30);
 				            carta = cartaFromString(cartaPresidente);
-				            
-				            
-				            for (int j=0; j<jugadores[i].getMano().length; j++){
 				                
 				                if(cartaEnMano(jugadores, i, carta)){
-				                    cartasIntercambiablesAux[k].setNumero(jugadores[i].getMano()[j].getNumero());
-				                    cartasIntercambiablesAux[k].setPalo(jugadores[i].getMano()[j].getPalo());
+				                    cartasIntercambiablesAux[k].setNumero(carta.getNumero());
+				                    cartasIntercambiablesAux[k].setPalo(carta.getPalo());
 				                    jugadores = sacaCarta(jugadores, i, cartasIntercambiablesAux[k]);
 				                    presPos=i;
 				                    isDone = true;
 				                }else {
 				                	System.out.println("Introduce una carta válida.");
 				                }
-				            }
 		            	}while(!isDone);
 		            	isDone = false;
 		            }
 		        }else if(jugadores[i].getRol() == "vicepresidente"){
 		        	do {
+			        	verMano(jugadores, i);
 				        String cartaPresidente = validaString("Introduce la carta que quieres dar al viceculo", 1,30);
 				        carta = cartaFromString(cartaPresidente);
-				            
-				            
-				        for (int j=0; j<jugadores[i].getMano().length; j++){
 				                
 				            if(cartaEnMano(jugadores, i, carta)){
-				                cartasIntercambiables[1].setNumero(jugadores[i].getMano()[j].getNumero());
-				                cartasIntercambiables[1].setPalo(jugadores[i].getMano()[j].getPalo());
+				                cartasIntercambiables[1].setNumero(carta.getNumero());
+				                cartasIntercambiables[1].setPalo(carta.getPalo());
 				                jugadores = sacaCarta(jugadores, i, cartasIntercambiables[1]);
 				                presPos=i;
 				                isDone = true;
 				            }else {
 				            	System.out.println("Introduce una carta válida.");
 				            }
-				        }
 		        	}while(!isDone);
 		        	isDone = false;
 		        }

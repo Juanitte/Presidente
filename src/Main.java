@@ -60,6 +60,7 @@ public class Main {
 
 			boolean isPresi = false;
 			boolean isVicePresi = false;
+			boolean isCulo = false;
 		
 			//Bucle para no terminar la partida actual hasta que la flag esté en true.
 			do {
@@ -139,8 +140,12 @@ public class Main {
 							
 							//Reparto de rol conforme se quede sin cartas un jugador.
 							if(jugadores[i].getRol() == "") {
+								int jugadoresFuera = 0;
 								if(Jugador.numeroCartasEnMano(jugadores, i) == 0 && !thereIsVice) {
 									for(int j = 0; j < jugadores.length; j++) {
+										if(jugadores[j].getRol() != "") {
+											jugadoresFuera++;
+										}
 										if(jugadores[j].getRol() == "presidente") {
 											isPresi = true;
 										}
@@ -148,12 +153,13 @@ public class Main {
 									if(!isPresi) {
 										jugadores[i].setRol("presidente");
 										System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
-									}else if(Jugador.jugadoresConCarta(jugadores) == 1){
+									}else if(jugadoresFuera == jugadores.length - 1){
 										boolean isDone = false;
 										for(int j = 0; j < jugadores.length && !isDone; j++) {
-											if(Jugador.numeroCartasEnMano(jugadores, j) > 0) {
+											if(jugadores[j].getRol() == "") {
 												jugadores[j].setRol("culo");
 												System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
+												isCulo = true;
 												isOver[2] = true;
 												isOver[1] = true;
 												isOver[0] = true;
@@ -168,6 +174,9 @@ public class Main {
 									}
 								}else if(Jugador.numeroCartasEnMano(jugadores, i) == 0) {
 									for(int j = 0; j < jugadores.length; j++) {
+										if(jugadores[j].getRol() != "") {
+											jugadoresFuera++;
+										}
 										if(jugadores[j].getRol() == "presidente") {
 											isPresi = true;
 										}
@@ -181,14 +190,15 @@ public class Main {
 									}else if(!isVicePresi) {
 										jugadores[i].setRol("vicepresidente");
 										System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
-									}else if(Jugador.jugadoresConCarta(jugadores) == 1){
+									}else if(jugadoresFuera == jugadores.length - 1){
 										jugadores[i].setRol("viceculo");
 										System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
 										boolean isDone = false;
 										for(int j = 0; j < jugadores.length && !isDone; j++) {
-											if(Jugador.numeroCartasEnMano(jugadores, j) > 0) {
+											if(jugadores[j].getRol() == "") {
 												jugadores[j].setRol("culo");
 												System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
+												isCulo = true;
 												isOver[2] = true;
 												isOver[1] = true;
 												isOver[0] = true;
@@ -203,37 +213,38 @@ public class Main {
 									}
 								}
 							}
-							
-							//Comparación de las cartas jugadas en este turno y el anterior para saltar el turno del siguiente jugador si se han jugado las mismas cartas en 2 turnos seguidos.
-							if(isOver[4]) {
-								contPasa++;
-							}else if(!isFirstTurn && !isOver[4]) {
-								if(Jugador.jugadasIguales(jugadores, i, contPasa, isOver)) {
-									if(i == jugadores.length - 1) {
-										i = 0;
-									}else {
-										i++;
-									}
-									Carta[] ultimaJugadaPasa = new Carta[8];
-									jugadores[i].setUltimaJugada(ultimaJugadaPasa);
-									jugadores[i].setUltimaJugada(Jugador.creaCartaArray(jugadores, i));
-									contPasa = 2;									
-										if(Jugador.numeroCartasEnMano(jugadores, i) == 0) {
-											while(Jugador.numeroCartasEnMano(jugadores, i) == 0){
-												if(i == jugadores.length - 1) {
-													i = 0;
-													contPasa++;
-												}else {
-													i++;
-													contPasa++;
+							if(!isCulo) {
+								//Comparación de las cartas jugadas en este turno y el anterior para saltar el turno del siguiente jugador si se han jugado las mismas cartas en 2 turnos seguidos.
+								if(isOver[4]) {
+									contPasa++;
+								}else if(!isFirstTurn && !isOver[4]) {
+									if(Jugador.jugadasIguales(jugadores, i, contPasa, isOver)) {
+										if(i == jugadores.length - 1) {
+											i = 0;
+										}else {
+											i++;
+										}
+										Carta[] ultimaJugadaPasa = new Carta[8];
+										jugadores[i].setUltimaJugada(ultimaJugadaPasa);
+										jugadores[i].setUltimaJugada(Jugador.creaCartaArray(jugadores, i));
+										contPasa = 2;									
+											if(Jugador.numeroCartasEnMano(jugadores, i) == 0) {
+												while(Jugador.numeroCartasEnMano(jugadores, i) == 0){
+													if(i == jugadores.length - 1) {
+														i = 0;
+														contPasa++;
+													}else {
+														i++;
+														contPasa++;
+													}
 												}
 											}
-										}
-								}else {
-									contPasa = 1;
+									}else {
+										contPasa = 1;
+									}
+								}else if(isFirstTurn){
+									isFirstTurn = false;
 								}
-							}else if(isFirstTurn){
-								isFirstTurn = false;
 							}
 							isOver[0] = false;
 						}
@@ -261,31 +272,33 @@ public class Main {
 			
 			isOver[2] = false;
 			
-			//Reinicializar jugadores.
-			
-			
-			//Generar baraja.
-			
-			baraja = new Baraja();
-			
-			
-			//Barajar las cartas.
-			
-			baraja.setCartas(Baraja.shuffle(baraja.getCartas()));
-			
-			
-			//Repartir las cartas entre los jugadores y ordenarlas en la mano.
-			
-			Jugador.llenaMano(baraja.getCartas(), jugadores);
-			jugadores = Jugador.ordenaManos(jugadores);
-			
-			//Ordenar los jugadores por rol.
-			jugadores = Jugador.ordenaConRoles(jugadores);
-			
-			//Aquí se cambian las cartas según los roles.
-			jugadores = Jugador.cartasAsignadas(jugadores, thereIsVice);
-			jugadores = Jugador.ordenaManos(jugadores);
-			jugadores = Jugador.limpiaRoles(jugadores);
+			if(!isOver[3]) {
+				//Reinicializar jugadores.
+				
+				
+				//Generar baraja.
+				
+				baraja = new Baraja();
+				
+				
+				//Barajar las cartas.
+				
+				baraja.setCartas(Baraja.shuffle(baraja.getCartas()));
+				
+				
+				//Repartir las cartas entre los jugadores y ordenarlas en la mano.
+				
+				Jugador.llenaMano(baraja.getCartas(), jugadores);
+				jugadores = Jugador.ordenaManos(jugadores);
+				
+				//Ordenar los jugadores por rol.
+				jugadores = Jugador.ordenaConRoles(jugadores);
+				
+				//Aquí se cambian las cartas según los roles.
+				jugadores = Jugador.cartasAsignadas(jugadores, thereIsVice);
+				jugadores = Jugador.ordenaManos(jugadores);
+				jugadores = Jugador.limpiaRoles(jugadores);
+			}
 			
 			//Aquí se comprueba si hay que terminar el programa.
 		}while(!isOver[3]);
