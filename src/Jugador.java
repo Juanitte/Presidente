@@ -371,7 +371,7 @@ public class Jugador {
 					boolean isOK = false;
 					do {
 						isOK = false;
-						int min = 1;
+						int min = 5;
 						System.out.println("");
 						System.out.print("Introduce la "+(i + 1)+"ª carta a jugar:");
 						nombreCarta = validaString("", min, 50);
@@ -383,10 +383,11 @@ public class Jugador {
 						}
 						if(isValid) {
 							isOK = compruebaValores(cartaASuperar, nombreCarta);
+							if(!isOK) {
+								System.out.println("La carta introducida no es del valor adecuado.");
+							}
 						}
-						if(!isOK) {
-							System.out.println("La carta introducida no es del valor adecuado.");
-						}
+						
 					}while(!isOK);
 					
 					cartaJugada = cartaFromString(nombreCarta);
@@ -1328,6 +1329,16 @@ public class Jugador {
 		
 		for(int i = 0; i < jugadores.length; i++) {
 			jugadores[i].setRol("");
+		}
+		
+		return jugadores;
+	}
+	
+	public static Jugador[] limpiaMano(Jugador[] jugadores, int pos) {
+		
+		for(int i = 0; i < jugadores[pos].getMano().length; i++) {
+			jugadores[pos].getMano()[i].setNumero(0);
+			jugadores[pos].getMano()[i].setPalo("");
 		}
 		
 		return jugadores;
