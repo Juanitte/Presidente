@@ -50,13 +50,16 @@ public class Main {
 		boolean[] isOver = new boolean[5];
 		
 		//Inicializado de array de cartas para generar una jugada anterior vacía al pasar turno.
-		Carta[] ultimaJugadaPasa = new Carta[8];
+		
 		
 			//Bucle para empezar una nueva partida en caso de que lo elijan los jugadores.
 		do {
 			
 			//Inicializador a false de todo el array de booleanos.
 			isOver = Jugador.creaFlagArray(isOver);
+
+			boolean isPresi = false;
+			boolean isVicePresi = false;
 		
 			//Bucle para no terminar la partida actual hasta que la flag esté en true.
 			do {
@@ -97,17 +100,30 @@ public class Main {
 							do {
 								
 								//Comprobación: Si han pasado todos los jugadores menos 1, reasigna la posición de los jugadores para que el ganador empiece la siguiente ronda y activa el boolean que da por terminada la ronda.
+								
 								if(posGanaRonda == i) {
 									jugadores = Jugador.asignaPosicion(jugadores, i - 1);
 									isOver[1] = true;
 									isOver[0] = true;
-								}else {
+								}
+								if(posGanaRonda != -1) {
+									while(jugadores[posGanaRonda].getRol() != "") {
+										if(posGanaRonda == jugadores.length - 1) {
+											posGanaRonda = 0;
+										}else {
+											posGanaRonda++;
+										}
+									}
+								}
+								
+								if(!isOver[0]){
 								
 									//Muestra el menú para el jugador[i], lee la opción introducida y actúa en consecuencia. Aquí se rellena el array de booleanos que está explicado arriba (línea 50).
 									isOver = Jugador.options(jugadores, i, isOver, isFirstTurn, cartaASuperar);
 																
 									//Comprobación: Si el jugador actual ha pasado turno, suma 1 al contador de personas que han pasado turno.
 									if(isOver[4]) {
+										Carta[] ultimaJugadaPasa = new Carta[8];
 										jugadores[i].setUltimaJugada(ultimaJugadaPasa);
 										jugadores[i].setUltimaJugada(Jugador.creaCartaArray(jugadores, i));
 										
@@ -122,51 +138,69 @@ public class Main {
 							}while(!isOver[0]);
 							
 							//Reparto de rol conforme se quede sin cartas un jugador.
-							if(Jugador.numeroCartasEnMano(jugadores, i) == 0 && !thereIsVice) {
-								if(Jugador.jugadoresConCarta(jugadores) == jugadores.length - 1) {
-									jugadores[i].setRol("presidente");
-									posGanaRonda = i+1;
-									System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
-								}else if(Jugador.jugadoresConCarta(jugadores) == 1){
-									boolean isDone = false;
-									for(int j = 0; j < jugadores.length && !isDone; j++) {
-										if(Jugador.numeroCartasEnMano(jugadores, j) > 0) {
-											jugadores[j].setRol("culo");
-											System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
-											isOver[2] = true;
-											isOver[1] = true;
-											isOver[0] = true;
-											isDone = true;
+							if(jugadores[i].getRol() == "") {
+								if(Jugador.numeroCartasEnMano(jugadores, i) == 0 && !thereIsVice) {
+									for(int j = 0; j < jugadores.length; j++) {
+										if(jugadores[j].getRol() == "presidente") {
+											isPresi = true;
 										}
 									}
-									isDone = false;
-								}
-							}else if(Jugador.numeroCartasEnMano(jugadores, i) == 0) {
-								if(Jugador.jugadoresConCarta(jugadores) == jugadores.length - 1) {
-									jugadores[i].setRol("presidente");
-									posGanaRonda = i+1;
-									System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
-								}else if(Jugador.jugadoresConCarta(jugadores) == jugadores.length - 2) {
-									jugadores[i].setRol("vicepresidente");
-									posGanaRonda = i+1;
-									System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
-								}else if(Jugador.jugadoresConCarta(jugadores) == 1){
-									jugadores[i].setRol("viceculo");
-									System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
-									boolean isDone = false;
-									for(int j = 0; j < jugadores.length && !isDone; j++) {
-										if(Jugador.numeroCartasEnMano(jugadores, j) > 0) {
-											jugadores[j].setRol("culo");
-											System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
-											isOver[2] = true;
-											isDone = true;
+									if(!isPresi) {
+										jugadores[i].setRol("presidente");
+										System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
+									}else if(Jugador.jugadoresConCarta(jugadores) == 1){
+										boolean isDone = false;
+										for(int j = 0; j < jugadores.length && !isDone; j++) {
+											if(Jugador.numeroCartasEnMano(jugadores, j) > 0) {
+												jugadores[j].setRol("culo");
+												System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
+												isOver[2] = true;
+												isOver[1] = true;
+												isOver[0] = true;
+												isDone = true;
+											}
+										}
+										isDone = false;
+									}else {
+										jugadores[i].setRol("neutro");
+										posGanaRonda = i;
+										System.out.println(jugadores[i].getNombre()+" es "+jugadores[i].getRol()+".");
+									}
+								}else if(Jugador.numeroCartasEnMano(jugadores, i) == 0) {
+									for(int j = 0; j < jugadores.length; j++) {
+										if(jugadores[j].getRol() == "presidente") {
+											isPresi = true;
+										}
+										if(jugadores[j].getRol() == "vicepresidente") {
+											isVicePresi = true;
 										}
 									}
-									isDone = false;
-								}else {
-									jugadores[i].setRol("neutro");
-									posGanaRonda = i+1;
-									System.out.println(jugadores[i].getNombre()+" es "+jugadores[i].getRol()+".");
+									if(!isPresi) {
+										jugadores[i].setRol("presidente");
+										System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
+									}else if(!isVicePresi) {
+										jugadores[i].setRol("vicepresidente");
+										System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
+									}else if(Jugador.jugadoresConCarta(jugadores) == 1){
+										jugadores[i].setRol("viceculo");
+										System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
+										boolean isDone = false;
+										for(int j = 0; j < jugadores.length && !isDone; j++) {
+											if(Jugador.numeroCartasEnMano(jugadores, j) > 0) {
+												jugadores[j].setRol("culo");
+												System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
+												isOver[2] = true;
+												isOver[1] = true;
+												isOver[0] = true;
+												isDone = true;
+											}
+										}
+										isDone = false;
+									}else {
+										jugadores[i].setRol("neutro");
+										posGanaRonda = i;
+										System.out.println(jugadores[i].getNombre()+" es "+jugadores[i].getRol()+".");
+									}
 								}
 							}
 							
@@ -180,6 +214,7 @@ public class Main {
 									}else {
 										i++;
 									}
+									Carta[] ultimaJugadaPasa = new Carta[8];
 									jugadores[i].setUltimaJugada(ultimaJugadaPasa);
 									jugadores[i].setUltimaJugada(Jugador.creaCartaArray(jugadores, i));
 									contPasa = 2;									
@@ -214,9 +249,10 @@ public class Main {
 				isOver[1] = false;
 				//Aquí se limpian las cartas de ultimaJugada.
 				jugadores = Jugador.limpiaUltimaJugada(jugadores);
-				
-				//En caso de terminar la ronda anterior, se ordenan los jugadores para que el ganador de la ronda, empiece en la siguiente.
-				jugadores = Jugador.ordenaJugadores(jugadores);
+				if(!isOver[2]) {
+					//En caso de terminar la ronda anterior, se ordenan los jugadores para que el ganador de la ronda, empiece en la siguiente.
+					jugadores = Jugador.ordenaJugadores(jugadores);
+				}
 				
 				
 				

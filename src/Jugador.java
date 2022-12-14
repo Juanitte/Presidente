@@ -342,7 +342,11 @@ public class Jugador {
 	
 	/**
 	 * Método para realizar las acciones de la opción Jugar.
-	 * @param pos , posición del jugador actual.
+	 * @param jugadores , el array de jugadores.
+	 * @param pos , la posicion del jugador actual.
+	 * @param isFirstTurn , boolean true si es el primer turno de la ronda.
+	 * @param cartaASuperar , la ultima carta jugada, con el valor a igualar o superar.
+	 * @return el array de jugadores modificado.
 	 */
 	
 	public static Jugador[] opcionJugar(Jugador[] jugadores, int pos, boolean isFirstTurn, Carta cartaASuperar) {
@@ -406,9 +410,9 @@ public class Jugador {
 						System.out.println("El nombre introducido no coincide con ninguna carta de tu mano.");
 					}
 				}while(!isCorrect);
-				jugadores[pos].ultimaJugada[i] = new Carta();
-				jugadores[pos].ultimaJugada[i].setNumero(carta.getNumero());
-				jugadores[pos].ultimaJugada[i].setPalo(carta.getPalo());
+				jugadores[pos].getUltimaJugada()[i] = new Carta();
+				jugadores[pos].getUltimaJugada()[i].setNumero(carta.getNumero());
+				jugadores[pos].getUltimaJugada()[i].setPalo(carta.getPalo());
 				jugadores = sacaCarta(jugadores, pos, carta);
 			}
 		}
@@ -778,7 +782,6 @@ public class Jugador {
 	
 	public static Jugador[] ordenaInicio(Jugador[] jugadores) {
 		Jugador[] jugadoresOrdenados = new Jugador[jugadores.length];
-		Carta[] ultimaJugada = new Carta[8];
 		boolean isIn = false;
 		boolean isDone = false;
 		for(int i = 0; i < jugadores.length && !isDone; i++) {
@@ -789,6 +792,8 @@ public class Jugador {
 			}
 			if(isIn) {
 				for(int j = 0; j < jugadores.length; j++) {
+
+					Carta[] ultimaJugada = new Carta[8];
 					if(i != jugadores.length - 1) {
 						jugadoresOrdenados[j] = new Jugador(jugadores.length);
 						jugadoresOrdenados[j].setNombre(jugadores[i].getNombre());
