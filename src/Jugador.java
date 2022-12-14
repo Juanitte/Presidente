@@ -227,6 +227,16 @@ public class Jugador {
 		return jugadores;
 	}
 	
+	/**
+	 * Método que muestra un menú y recoge la opción introducida por el jugador para actuar en consecuencia.
+	 * @param jugadores , el array de jugadores.
+	 * @param pos , la posicion del jugador actual.
+	 * @param isOver , el array de flags.
+	 * @param isFirstTurn , un boolean que indica si es el primer turno.
+	 * @param cartaASuperar , la carta a superar en este turno.
+	 * @return el array de booleanos modificado.
+	 */
+	
 	public static boolean[] options(Jugador[] jugadores,int pos, boolean[] isOver, boolean isFirstTurn, Carta cartaASuperar) {
 		
 		// En isOver[0] se controlará el fin de turno.

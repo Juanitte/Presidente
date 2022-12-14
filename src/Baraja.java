@@ -136,6 +136,12 @@ public class Baraja {
 		return baraja;
 	}
 	
+	/**
+	 * Método para sacar la primera carta de la baraja.
+	 * @param baraja , el array de cartas.
+	 * @return la carta que hemos sacado.
+	 */
+	
 	public static Carta sacaCarta(Carta[] baraja) {
 		Carta carta = new Carta(baraja[0].getNumero(), baraja[0].getPalo());
 		
