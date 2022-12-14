@@ -252,15 +252,21 @@ public class Jugador {
 				case 1:
 					//Aquí además de realizar las acciones de la opción jugar, llena un array con las cartas que se han jugado.
 					if(isFirstTurn) {
+						verMano(jugadores, pos);
+						System.out.println("");
 						jugadores = numeroCartas(jugadores, pos, cartaASuperar);
 					}else {
 						jugadores = numCartasRonda(jugadores);
 					}
 					if(isFirstTurn || numCartasCorrecto(jugadores, pos, cartaASuperar)) {
+						if(!isFirstTurn) {
+							verMano(jugadores, pos);
+							System.out.println("");
+						}
 						jugadores = Jugador.opcionJugar(jugadores, pos, isFirstTurn, cartaASuperar);
 						isOver[0] = true;
 						isOver[4] = false;
-						if(isFirstTurn && !numCartasCorrecto(jugadores, pos, cartaASuperar)) {
+						if((isFirstTurn && !numCartasCorrecto(jugadores, pos, cartaASuperar)) || jugadores[pos].getNumeroCartasJugadas() == 0) {
 							isOver[0] = false;
 							isOver[4] = false;
 						}
@@ -298,9 +304,12 @@ public class Jugador {
 	
 	public static Jugador[] numeroCartas(Jugador[] jugadores, int pos, Carta cartaASuperar) {
 
-		jugadores[pos].setNumeroCartasJugadas(leeEntero("Introduce el número de cartas a jugar: ", 1, 8));
+		System.out.println("");
+		jugadores[pos].setNumeroCartasJugadas(leeEntero("Introduce el número de cartas a jugar o 0 para volver al menú: ", 0, 8));
 		
-		if(!numCartasCorrecto(jugadores, pos, cartaASuperar)) {
+		if(jugadores[pos].getNumeroCartasJugadas() == 0) {
+			System.out.println("Volviendo...");
+		}else if(!numCartasCorrecto(jugadores, pos, cartaASuperar)) {
 			System.out.println("No tienes suficientes cartas para realizar esta jugada.");
 			jugadores[pos].setNumeroCartasJugadas(0);
 		}	
@@ -586,38 +595,38 @@ public class Jugador {
 			carta.setNumero(6);
 		}else if(nombreCarta.charAt(0) == '7') {
 			carta.setNumero(7);
-		}else if(nombreCarta.charAt(0) == 'S') {
+		}else if(nombreCarta.charAt(0) == 'S' || nombreCarta.charAt(0) == 's') {
 			carta.setNumero(8);
 			esFigura = true;
-			if(nombreCarta.charAt(8) == 'o') {
+			if(nombreCarta.charAt(8) == 'o' || nombreCarta.charAt(8) == 'O') {
 				carta.setPalo("oros");
-			}else if(nombreCarta.charAt(8) == 'c') {
+			}else if(nombreCarta.charAt(8) == 'c' || nombreCarta.charAt(8) == 'C') {
 				carta.setPalo("copas");			
-			}else if(nombreCarta.charAt(8) == 'e') {
+			}else if(nombreCarta.charAt(8) == 'e' || nombreCarta.charAt(8) == 'E') {
 				carta.setPalo("espadas");			
 			}else{
 				carta.setPalo("bastos");			
 			}
-		}else if(nombreCarta.charAt(0) == 'C') {
+		}else if(nombreCarta.charAt(0) == 'C' || nombreCarta.charAt(0) == 'c') {
 			carta.setNumero(9);
 			esFigura = true;
-			if(nombreCarta.charAt(11) == 'o') {
+			if(nombreCarta.charAt(11) == 'o' || nombreCarta.charAt(11) == 'O') {
 				carta.setPalo("oros");
-			}else if(nombreCarta.charAt(11) == 'c') {
+			}else if(nombreCarta.charAt(11) == 'c' || nombreCarta.charAt(11) == 'C') {
 				carta.setPalo("copas");			
-			}else if(nombreCarta.charAt(11) == 'e') {
+			}else if(nombreCarta.charAt(11) == 'e' || nombreCarta.charAt(11) == 'E') {
 				carta.setPalo("espadas");			
 			}else{
 				carta.setPalo("bastos");			
 			}
-		}else if(nombreCarta.charAt(0) == 'R') {
+		}else if(nombreCarta.charAt(0) == 'R' || nombreCarta.charAt(0) == 'r') {
 			carta.setNumero(10);
 			esFigura = true;
-			if(nombreCarta.charAt(7) == 'o') {
+			if(nombreCarta.charAt(7) == 'o' || nombreCarta.charAt(7) == 'O') {
 				carta.setPalo("oros");
-			}else if(nombreCarta.charAt(7) == 'c') {
+			}else if(nombreCarta.charAt(7) == 'c' || nombreCarta.charAt(7) == 'C') {
 				carta.setPalo("copas");			
-			}else if(nombreCarta.charAt(7) == 'e') {
+			}else if(nombreCarta.charAt(7) == 'e' || nombreCarta.charAt(7) == 'E') {
 				carta.setPalo("espadas");			
 			}else{
 				carta.setPalo("bastos");			
@@ -628,11 +637,11 @@ public class Jugador {
 			carta.setNumero(2);
 		}
 		if(!esFigura) {
-			if(nombreCarta.charAt(5) == 'o') {
+			if(nombreCarta.charAt(5) == 'o' || nombreCarta.charAt(5) == 'O') {
 				carta.setPalo("oros");
-			}else if(nombreCarta.charAt(5) == 'c') {
+			}else if(nombreCarta.charAt(5) == 'c' || nombreCarta.charAt(5) == 'C') {
 				carta.setPalo("copas");			
-			}else if(nombreCarta.charAt(5) == 'e') {
+			}else if(nombreCarta.charAt(5) == 'e' || nombreCarta.charAt(5) == 'E') {
 				carta.setPalo("espadas");			
 			}else{
 				carta.setPalo("bastos");			
@@ -747,6 +756,7 @@ public class Jugador {
 	public static Carta[] ordenaMano(Carta[] mano) {
 		Carta[] manoNueva = new Carta[mano.length];
 		int posMax = 0;
+		boolean is2deOros = false;
 		
 		for(int i = 0; i < manoNueva.length;i++) {
 			posMax = 0;
@@ -754,7 +764,8 @@ public class Jugador {
 				if(mano[j].getNumero() == 2) {
 					if(mano[j].getPalo() == "oros") {
 						posMax = j;
-					}else {
+						is2deOros = true;
+					}else if(!is2deOros){
 						posMax = j;
 					}
 				}else if(mano[j].getNumero() == 1 && mano[posMax].getNumero() != 2) {
@@ -1078,11 +1089,14 @@ public class Jugador {
 		            cartasIntercambiables[0].setPalo(jugadores[i].getMano()[0].getPalo());
 		            jugadores = sacaCarta(jugadores, i, cartasIntercambiables[0]);
 		            culoPos=i;
+		            System.out.println("");
 		            System.out.println("El culo le ha dado un "+cartasIntercambiables[0].toString()+" al presidente.");
 		        }else if(jugadores[i].getRol() == "presidente"){
 		        	verMano(jugadores, i);
 		            do {
+		            	System.out.println("");
 			            String cartaPresidente = validaString("Introduce la carta que quieres dar al culo :", 1,30);
+			            System.out.println("");
 			            carta = cartaFromString(cartaPresidente);
 			                
 			                if(cartaEnMano(jugadores, i, carta)){
@@ -1109,6 +1123,7 @@ public class Jugador {
 		            jugadores = sacaCarta(jugadores, i, cartasIntercambiablesAux[2]);
 		            jugadores = sacaCarta(jugadores, i, cartasIntercambiablesAux[3]);
 		            culoPos=i;
+		            System.out.println("");
 		            System.out.println("El culo le ha dado un "+cartasIntercambiablesAux[2].toString()+" y un "+cartasIntercambiablesAux[3].toString()+" al presidente.");
 		            
 		        }else if(jugadores[i].getRol() == "viceculo"){
@@ -1116,6 +1131,7 @@ public class Jugador {
 		            cartasIntercambiables[0].setPalo(jugadores[i].getMano()[0].getPalo());
 		            jugadores = sacaCarta(jugadores, i, cartasIntercambiables[0]);
 		            viceCuloPos=i;
+		            System.out.println("");
 		            System.out.println("El viceculo le ha dado un "+cartasIntercambiables[0].toString()+" al presidente.");
 		           
 		        }else if(jugadores[i].getRol() == "presidente"){
@@ -1123,7 +1139,9 @@ public class Jugador {
 		            for(int k = 2; k < 4; k++) {
 		            	do {
 				        	verMano(jugadores, i);
+				        	System.out.println("");
 				            String cartaPresidente = validaString("Introduce la "+(k - 1)+"º carta que quieres dar al culo", 1,30);
+				            System.out.println("");
 				            carta = cartaFromString(cartaPresidente);
 				                
 				                if(cartaEnMano(jugadores, i, carta)){
@@ -1141,7 +1159,9 @@ public class Jugador {
 		        }else if(jugadores[i].getRol() == "vicepresidente"){
 		        	do {
 			        	verMano(jugadores, i);
+			        	System.out.println("");
 				        String cartaPresidente = validaString("Introduce la carta que quieres dar al viceculo", 1,30);
+				        System.out.println("");
 				        carta = cartaFromString(cartaPresidente);
 				                
 				            if(cartaEnMano(jugadores, i, carta)){
@@ -1342,6 +1362,31 @@ public class Jugador {
 		}
 		
 		return jugadores;
+	}
+	
+	public static boolean[] terminaPartida(boolean[] isOver, String msn) {
+		
+		boolean isDone = false;
+		String result = "";
+		
+		while(!isDone) {
+			result = validaString(msn, 2, 2);
+			
+			if(result.charAt(0) == 'N' || result.charAt(0) == 'n') {
+				System.out.println("Espero que lo hayais pasado bien.");
+				System.out.println("Cerrando programa...");
+				isOver[3] = true;
+				isDone = true;
+			}else if(result.charAt(0) == 'S' || result.charAt(0) == 's') {
+				isOver[3] = false;
+				isDone = true;
+			}else {
+				System.out.println("Introduce una respuesta valida.");
+				isDone = false;
+			}
+		}
+		
+		return isOver;
 	}
 }
 
