@@ -19,6 +19,9 @@ public class Jugador {
 		this.rol = "";
 		this.posicion = 0;
 		this.ultimaJugada = new Carta[8];
+		for(int i = 0; i < ultimaJugada.length; i++) {
+			this.ultimaJugada[i] = new Carta();
+		}
 		this.numeroCartasJugadas = 0;
 		this.mano = new Carta[(40 / numeroJugadores) + 1];
 		for(int i = 0; i < mano.length; i++) {
@@ -224,21 +227,6 @@ public class Jugador {
 		return jugadores;
 	}
 	
-	/**
-	 * Método para mostrar el menú de acción.
-	 * @param jugadores , array de jugadores.
-	 * @param pos , posición del jugador que debe jugar este turno.
-	 */
-	
-	public static void muestraMenu(Jugador[] jugadores, int pos) {
-		System.out.println("");
-		System.out.print("TURNO DE "+jugadores[pos].nombre.toUpperCase()+".");
-		System.out.println("");
-		System.out.println("1 - Jugar.");
-		System.out.println("2 - Pasar.");
-		System.out.println("3 - Ver Mano.");
-	}
-	
 	public static boolean[] options(Jugador[] jugadores,int pos, boolean[] isOver, boolean isFirstTurn, Carta cartaASuperar) {
 		
 		// En isOver[0] se controlará el fin de turno.
@@ -250,45 +238,53 @@ public class Jugador {
 		// En isOver[3] se controlará el fin del juego.
 		
 		// En isOver[4] se controlará si el jugador ha pasado turno.
-		
-		int opt = Jugador.leeEntero("", 1, 3);
-		
-		switch(opt) {
-			case 1:
-				//Aquí además de realizar las acciones de la opción jugar, llena un array con las cartas que se han jugado.
-				if(isFirstTurn) {
-					jugadores = numeroCartas(jugadores, pos, cartaASuperar);
-				}else {
-					jugadores = numCartasRonda(jugadores);
-				}
-				if(isFirstTurn || numCartasCorrecto(jugadores, pos, cartaASuperar)) {
-					jugadores = Jugador.opcionJugar(jugadores, pos, isFirstTurn, cartaASuperar);
-					isOver[0] = true;
-					isOver[4] = false;
-					if(isFirstTurn && !numCartasCorrecto(jugadores, pos, cartaASuperar)) {
+		do {	
+			System.out.println("");
+			System.out.print("TURNO DE "+jugadores[pos].nombre.toUpperCase()+".");
+			System.out.println("");
+			System.out.println("1 - Jugar.");
+			System.out.println("2 - Pasar.");
+			System.out.println("3 - Ver Mano.");
+			
+			int opt = Jugador.leeEntero("", 1, 3);
+			
+			switch(opt) {
+				case 1:
+					//Aquí además de realizar las acciones de la opción jugar, llena un array con las cartas que se han jugado.
+					if(isFirstTurn) {
+						jugadores = numeroCartas(jugadores, pos, cartaASuperar);
+					}else {
+						jugadores = numCartasRonda(jugadores);
+					}
+					if(isFirstTurn || numCartasCorrecto(jugadores, pos, cartaASuperar)) {
+						jugadores = Jugador.opcionJugar(jugadores, pos, isFirstTurn, cartaASuperar);
+						isOver[0] = true;
+						isOver[4] = false;
+						if(isFirstTurn && !numCartasCorrecto(jugadores, pos, cartaASuperar)) {
+							isOver[0] = false;
+							isOver[4] = false;
+						}
+					}else {
+						System.out.println("No tienes cartas suficientes para jugar este turno.");
+					}
+					break;
+				case 2:
+					if(!isFirstTurn) {
+						System.out.println("Has pasado tu turno.");
+						isOver[0] = true;
+						isOver[4] = true;
+					}else {
+						System.out.println("No puedes pasar el 1º turno de la ronda.");
 						isOver[0] = false;
 						isOver[4] = false;
 					}
-				}else {
-					System.out.println("No tienes cartas suficientes para jugar este turno.");
-				}
-				break;
-			case 2:
-				if(!isFirstTurn) {
-					System.out.println("Has pasado tu turno.");
-					isOver[0] = true;
-					isOver[4] = true;
-				}else {
-					System.out.println("No puedes pasar el 1º turno de la ronda.");
+					break;
+				case 3:
+					Jugador.verMano(jugadores, pos);
 					isOver[0] = false;
 					isOver[4] = false;
-				}
-				break;
-			case 3:
-				Jugador.verMano(jugadores, pos);
-				isOver[0] = false;
-				isOver[4] = false;
-		}
+			}
+		}while(!isOver[0]);
 		
 		return isOver;
 	}
@@ -361,17 +357,13 @@ public class Jugador {
 		
 		if(!isFirstTurn || numCartasCorrecto(jugadores, pos, cartaASuperar)) {
 		
-			Carta[] lastPlay = new Carta[jugadores[pos].getNumeroCartasJugadas()];
 			
-			lastPlay = creaCartaArray(jugadores, pos);
-			
-			jugadores[pos].setUltimaJugada(lastPlay);
 			
 			for(int i = 0; i < jugadores[pos].getNumeroCartasJugadas(); i++) {
 				boolean isCorrect = false;
 				do {
 					boolean isValid = false;
-					areThere = false;
+					auxCartas = 0;
 					boolean isOK = false;
 					do {
 						isOK = false;
@@ -410,10 +402,11 @@ public class Jugador {
 						}else {
 							areThere = true;
 						}
-					}else {
+					}else if(!isCorrect && !areThere){
 						System.out.println("El nombre introducido no coincide con ninguna carta de tu mano.");
 					}
 				}while(!isCorrect);
+				jugadores[pos].ultimaJugada[i] = new Carta();
 				jugadores[pos].ultimaJugada[i].setNumero(carta.getNumero());
 				jugadores[pos].ultimaJugada[i].setPalo(carta.getPalo());
 				jugadores = sacaCarta(jugadores, pos, carta);
@@ -435,9 +428,11 @@ public class Jugador {
 		Carta carta = new Carta();
 		
 		carta = cartaFromString(nombreCarta);
-		if(cartaASuperar.getNumero() == 2 && cartaASuperar.getPalo() != "oros") {
-			if(carta.getNumero() == 2) {
-				isOK = true;
+		if(cartaASuperar.getNumero() == 2) {
+			if(cartaASuperar.getPalo() != "oros") {
+				if(carta.getNumero() == 2) {
+					isOK = true;
+				}
 			}
 		}else if(cartaASuperar.getNumero() == 1) {
 			if(carta.getNumero() == 2 || carta.getNumero() == 1) {
@@ -461,15 +456,24 @@ public class Jugador {
 	
 	public static Carta compruebaJugada(Jugador[] jugadores, int pos) {
 		
-		Carta carta = new Carta();
+		Carta carta = new Carta(2, "");
+		boolean isDone = false;
 		
 		for(int i = 0; i < jugadores[pos].getUltimaJugada().length; i++) {
 			if(jugadores[pos].getUltimaJugada()[i].getNumero() !=2 && jugadores[pos].getUltimaJugada()[i].getNumero() !=0) {
 				carta.setNumero(jugadores[pos].getUltimaJugada()[i].getNumero());
 				carta.setPalo(jugadores[pos].getUltimaJugada()[i].getPalo());
-			}else if(jugadores[pos].getUltimaJugada()[i].getNumero() !=0) {
-				carta.setNumero(2);
-				carta.setPalo(jugadores[pos].getUltimaJugada()[i].getPalo());
+			}
+		}
+		if(carta.getNumero() == 2) {
+			for(int j = 0; j < jugadores[pos].getUltimaJugada().length && !isDone; j++) {
+				if(jugadores[pos].getUltimaJugada()[j].getNumero() == 2) {
+					carta.setPalo(jugadores[pos].getUltimaJugada()[j].getPalo());
+					if(jugadores[pos].getUltimaJugada()[j].getPalo() == "oros") {
+						carta.setPalo(jugadores[pos].getUltimaJugada()[j].getPalo());
+						isDone = true;
+					}
+				}
 			}
 		}
 		
@@ -512,7 +516,7 @@ public class Jugador {
 	 * @return un boolean true si las 2 últimas jugadas son iguales.
 	 */
 	
-	public static boolean jugadasIguales(Jugador[] jugadores, int pos, int contPasa) {
+	public static boolean jugadasIguales(Jugador[] jugadores, int pos, int contPasa, boolean[] isOver) {
 		boolean isEqual = false;
 		int act = 2;
 		int ant = 2;
@@ -527,14 +531,15 @@ public class Jugador {
 						ant = jugadores[pos - contPasa].getUltimaJugada()[i].getNumero();
 					}
 				}else {
-					if(jugadores[jugadores.length - contPasa].getUltimaJugada()[i].getNumero() != 2 && jugadores[jugadores.length - contPasa].getUltimaJugada()[i].getNumero() != 0) {
-						ant = jugadores[jugadores.length - contPasa].getUltimaJugada()[i].getNumero();
+					if(jugadores[(jugadores.length) - (contPasa - pos)].getUltimaJugada()[i].getNumero() != 2 && jugadores[(jugadores.length) - (contPasa - pos)].getUltimaJugada()[i].getNumero() != 0) {
+						ant = jugadores[(jugadores.length) - (contPasa - pos)].getUltimaJugada()[i].getNumero();
 					}
 				}
 			}
-		
-		if(act == ant) {
-			isEqual = true;
+		if(!isOver[1]) {
+			if(act == ant) {
+				isEqual = true;
+			}
 		}
 		
 		return isEqual;
@@ -550,8 +555,7 @@ public class Jugador {
 		
 		for(int i = 0; i < jugadores.length; i++) {
 			for(int j = 0; j < jugadores[i].getUltimaJugada().length; j++) {
-				jugadores[i].ultimaJugada[j].setNumero(0);
-				jugadores[i].ultimaJugada[j].setPalo("");;
+				jugadores[i].ultimaJugada[j] = new Carta();
 			}
 		}
 		
@@ -646,32 +650,31 @@ public class Jugador {
 		
 		for(int i = 0; i < jugadores[pos].mano.length && !isThere; i++) {
 			int cont = 0;
-			int aux = 0;
-			for(int j = i; j < jugadores[pos].mano.length && !isThere; j++) {
+			for(int j = 0; j < jugadores[pos].mano.length && !isThere; j++) {
 				if(cartaASuperar.getNumero() == 1) {
 					if(((jugadores[pos].mano[i].getNumero() == jugadores[pos].mano[j].getNumero()) || (jugadores[pos].mano[j].getNumero() == 2)) && (jugadores[pos].getMano()[j].getNumero() == 1 || jugadores[pos].getMano()[j].getNumero() == 2)) {
 						cont++;
 					}else if(jugadores[pos].getMano()[i].getNumero() == 2) {
-						if(aux == 0 || aux == 2) {
-							aux = jugadores[pos].getMano()[j].getNumero();
+						if(jugadores[pos].getMano()[j].getNumero() == 2) {
 							cont++;
 						}else {
-							if(jugadores[pos].getMano()[j].getNumero() == aux) {
+							if(jugadores[pos].getMano()[j].getNumero() == jugadores[pos].getMano()[i].getNumero()) {
 								cont++;
 							}	
 						}
 					}
-				}else if(cartaASuperar.getNumero() == 2 && cartaASuperar.getPalo() != "oros") {
-					if(jugadores[pos].getMano()[j].getNumero() == 2) {
-						cont++;
+				}else if(cartaASuperar.getNumero() == 2) {
+					if(cartaASuperar.getPalo() != "oros") {
+						if(jugadores[pos].getMano()[j].getNumero() == 2) {
+							cont++;
+						}
 					}
 				}else {
 					if(jugadores[pos].getMano()[i].getNumero() == 2) {
-						if(aux == 0 || aux == 2) {
-							aux = jugadores[pos].getMano()[j].getNumero();
+						if(jugadores[pos].getMano()[j].getNumero() == 2) {
 							cont++;
 						}else {
-							if(jugadores[pos].getMano()[j].getNumero() == aux) {
+							if(jugadores[pos].getMano()[j].getNumero()  == jugadores[pos].getMano()[i].getNumero()) {
 								cont++;
 							}
 						}
@@ -722,6 +725,8 @@ public class Jugador {
 			jugadoresNuevo[i].setRol(jugadores[i].getRol());
 			jugadoresNuevo[i].setMano(ordenaMano(jugadores[i].getMano()));
 			jugadoresNuevo[i].setPosicion(jugadores[i].getPosicion());
+			jugadoresNuevo[i].setNumeroCartasJugadas(jugadores[i].getNumeroCartasJugadas());
+			jugadoresNuevo[i].setUltimaJugada(jugadores[i].getUltimaJugada());
 			
 		}
 		
@@ -773,6 +778,7 @@ public class Jugador {
 	
 	public static Jugador[] ordenaInicio(Jugador[] jugadores) {
 		Jugador[] jugadoresOrdenados = new Jugador[jugadores.length];
+		Carta[] ultimaJugada = new Carta[8];
 		boolean isIn = false;
 		boolean isDone = false;
 		for(int i = 0; i < jugadores.length && !isDone; i++) {
@@ -789,6 +795,11 @@ public class Jugador {
 						jugadoresOrdenados[j].setRol(jugadores[i].getRol());
 						jugadoresOrdenados[j].setMano(jugadores[i].getMano());
 						jugadoresOrdenados[j].setPosicion(j + 1);
+						jugadoresOrdenados[j].setNumeroCartasJugadas(jugadores[i].getNumeroCartasJugadas());
+						jugadoresOrdenados[j].setUltimaJugada(ultimaJugada);
+						for(int k = 0; k < jugadores[i].getUltimaJugada().length; k++) {
+							jugadoresOrdenados[j].getUltimaJugada()[k] = new Carta(jugadores[i].getUltimaJugada()[k].getNumero(), jugadores[i].getUltimaJugada()[k].getPalo());
+						}
 						i++;
 					}else {
 						jugadoresOrdenados[j] = new Jugador(jugadores.length);
@@ -796,6 +807,11 @@ public class Jugador {
 						jugadoresOrdenados[j].setRol(jugadores[i].getRol());
 						jugadoresOrdenados[j].setMano(jugadores[i].getMano());
 						jugadoresOrdenados[j].setPosicion(j + 1);
+						jugadoresOrdenados[j].setNumeroCartasJugadas(jugadores[i].getNumeroCartasJugadas());
+						jugadoresOrdenados[j].setUltimaJugada(ultimaJugada);
+						for(int k = 0; k < jugadores[i].getUltimaJugada().length; k++) {
+							jugadoresOrdenados[j].getUltimaJugada()[k] = new Carta(jugadores[i].getUltimaJugada()[k].getNumero(), jugadores[i].getUltimaJugada()[k].getPalo());
+						}
 						i = 0;
 					}
 				}
@@ -817,6 +833,11 @@ public class Jugador {
 	
 	public static Jugador[] ordenaJugadores(Jugador[] jugadores) {
 		Jugador[] jugadoresOrdenados = new Jugador[jugadores.length];
+		Carta[] ultimaJugada = new Carta[8];
+		
+		for(int i = 0; i < ultimaJugada.length; i++) {
+			ultimaJugada[i] = new Carta();
+		}
 		
 		for(int i = 0; i < jugadores.length; i++) {
 			jugadoresOrdenados[i] = new Jugador(jugadores.length);
@@ -826,7 +847,11 @@ public class Jugador {
 					jugadoresOrdenados[i].setRol(jugadores[j].getRol());
 					jugadoresOrdenados[i].setMano(jugadores[j].getMano());
 					jugadoresOrdenados[i].setPosicion(jugadores[j].getPosicion());
-					jugadoresOrdenados[i].setUltimaJugada(jugadores[j].getUltimaJugada());
+					for(int k = 0; k < jugadores[i].getUltimaJugada().length; k++) {
+						jugadoresOrdenados[i].getUltimaJugada()[k].setNumero(jugadores[j].getUltimaJugada()[k].getNumero());
+						jugadoresOrdenados[i].getUltimaJugada()[k].setPalo(jugadores[j].getUltimaJugada()[k].getPalo());
+					}
+					jugadoresOrdenados[i].setNumeroCartasJugadas(jugadores[j].getNumeroCartasJugadas());
 				}
 			}
 		}
@@ -880,7 +905,7 @@ public class Jugador {
 	/**
 	 * Método para inicializar el array de cartas ultimaJugada.
 	 * @param jugadores , el array de jugadores.
-	 * @return el array de jugadores modificado.
+	 * @return el array de cartas con la ultima jugada.
 	 */
 	
 	public static Carta[] creaCartaArray(Jugador[] jugadores, int pos) {
@@ -1025,45 +1050,183 @@ public class Jugador {
 	 * @param jugadores  El array de jugadores
 	 * @return  El array de jugadores modificado
 	 */
-	public static Jugador[] cartasAsignadas (Jugador[] jugadores ){
-	    Carta[] cartasIntercambiables = new Carta[2];
-	    boolean culo = false;
-	    boolean presidente = false;
+	public static Jugador[] cartasAsignadas (Jugador[] jugadores, boolean thereIsVice){
+		Carta[] cartasIntercambiables = new Carta[2];
+		Carta[] cartasIntercambiablesAux = new Carta[4];
 	    int culoPos=0;
 	    int presPos=0;
+	    int viceCuloPos = 0;
+	    int vicePresPos = 0;
 	    Carta carta = new Carta();
-	    
-	    for (int i=0; i<jugadores.length; i++){
-	        if(jugadores[i].getRol() == "culo"){
-	            cartasIntercambiables[1].setNumero(jugadores[i].getMano()[0].getNumero());
-	            cartasIntercambiables[1].setPalo(jugadores[i].getMano()[0].getPalo());
-	            jugadores = sacaCarta(jugadores, i, cartasIntercambiables[1]);
-	            culo= true;
-	            culoPos=i;
-	            if (presidente){
-	            	jugadores[presPos].getMano()[0].setNumero(cartasIntercambiables[0].getNumero());
-	            	jugadores[presPos].getMano()[0].setPalo(cartasIntercambiables[0].getPalo());
-	            }
-	        }else if(jugadores[i].getRol() == "presidente"){
-	            
-	            String cartaPresidente = validaString("Introduce la carta que quieres dar al culo", 1,30);
-	            carta = cartaFromString(cartaPresidente);
-	            
-	            
-	            for (int j=0; j<jugadores[i].getMano().length; j++){
-	                
-	                if(cartaEnMano(jugadores, i, carta)){
-	                    cartasIntercambiables[0].setNumero(jugadores[i].getMano()[j].getNumero());
-	                    cartasIntercambiables[0].setPalo(jugadores[i].getMano()[j].getPalo());
-	                    jugadores = sacaCarta(jugadores, i, cartasIntercambiables[0]);
-	                    presidente=true;
-	                    presPos=i;
-	                } if(culo) {
-	                	jugadores[culoPos].getMano()[j].setNumero(cartasIntercambiables[1].getNumero());
-	                	jugadores[culoPos].getMano()[j].setPalo(cartasIntercambiables[1].getPalo());
-	                }
-	            }
-	        }
+	    boolean isDone = false;
+	    for(int i = 0; i < cartasIntercambiables.length; i++) {
+	    	cartasIntercambiables[i] = new Carta();
+	    }
+	    for(int i = 0; i < cartasIntercambiablesAux.length; i++) {
+	    	cartasIntercambiablesAux[i] = new Carta();
+	    }
+	    if(!thereIsVice) {
+		    for (int i=0; i<jugadores.length; i++){
+		        if(jugadores[i].getRol() == "culo"){
+		            cartasIntercambiables[0].setNumero(jugadores[i].getMano()[0].getNumero());
+		            cartasIntercambiables[0].setPalo(jugadores[i].getMano()[0].getPalo());
+		            jugadores = sacaCarta(jugadores, i, cartasIntercambiables[0]);
+		            culoPos=i;
+		            System.out.println("El culo le ha dado un "+cartasIntercambiables[0].toString()+" al presidente.");
+		        }else if(jugadores[i].getRol() == "presidente"){
+		            do {
+			            String cartaPresidente = validaString("Introduce la carta que quieres dar al culo :", 1,30);
+			            carta = cartaFromString(cartaPresidente);
+			            
+			            
+			            for (int j=0; j<jugadores[i].getMano().length; j++){
+			                
+			                if(cartaEnMano(jugadores, i, carta)){
+			                    cartasIntercambiables[1].setNumero(jugadores[i].getMano()[j].getNumero());
+			                    cartasIntercambiables[1].setPalo(jugadores[i].getMano()[j].getPalo());
+			                    jugadores = sacaCarta(jugadores, i, cartasIntercambiables[1]);
+			                    presPos=i;
+			                    isDone = true;
+			                }else {
+			                	System.out.println("Introduce una carta válida.");
+			                	isDone = false;
+			                }
+			            }
+		            }while(!isDone);
+		            isDone = false;
+		        }
+		    }
+	    }else {
+	    	for (int i=0; i<jugadores.length; i++){
+		        if(jugadores[i].getRol() == "culo"){
+		        	cartasIntercambiablesAux[2].setNumero(jugadores[i].getMano()[0].getNumero());
+		            cartasIntercambiablesAux[2].setPalo(jugadores[i].getMano()[0].getPalo());
+		            cartasIntercambiablesAux[3].setNumero(jugadores[i].getMano()[1].getNumero());
+		            cartasIntercambiablesAux[3].setPalo(jugadores[i].getMano()[1].getPalo());
+		            jugadores = sacaCarta(jugadores, i, cartasIntercambiablesAux[2]);
+		            jugadores = sacaCarta(jugadores, i, cartasIntercambiablesAux[3]);
+		            culoPos=i;
+		            System.out.println("El culo le ha dado un "+cartasIntercambiablesAux[2].toString()+" y un "+cartasIntercambiablesAux[3].toString()+" al presidente.");
+		            
+		        }else if(jugadores[i].getRol() == "viceculo"){
+		            cartasIntercambiables[0].setNumero(jugadores[i].getMano()[0].getNumero());
+		            cartasIntercambiables[0].setPalo(jugadores[i].getMano()[0].getPalo());
+		            jugadores = sacaCarta(jugadores, i, cartasIntercambiables[0]);
+		            viceCuloPos=i;
+		            System.out.println("El viceculo le ha dado un "+cartasIntercambiables[0].toString()+" al presidente.");
+		           
+		        }else if(jugadores[i].getRol() == "presidente"){
+
+		            for(int k = 2; k < 4; k++) {
+		            	do {
+				            String cartaPresidente = validaString("Introduce la "+(k - 1)+"º carta que quieres dar al culo", 1,30);
+				            carta = cartaFromString(cartaPresidente);
+				            
+				            
+				            for (int j=0; j<jugadores[i].getMano().length; j++){
+				                
+				                if(cartaEnMano(jugadores, i, carta)){
+				                    cartasIntercambiablesAux[k].setNumero(jugadores[i].getMano()[j].getNumero());
+				                    cartasIntercambiablesAux[k].setPalo(jugadores[i].getMano()[j].getPalo());
+				                    jugadores = sacaCarta(jugadores, i, cartasIntercambiablesAux[k]);
+				                    presPos=i;
+				                    isDone = true;
+				                }else {
+				                	System.out.println("Introduce una carta válida.");
+				                }
+				            }
+		            	}while(!isDone);
+		            	isDone = false;
+		            }
+		        }else if(jugadores[i].getRol() == "vicepresidente"){
+		        	do {
+				        String cartaPresidente = validaString("Introduce la carta que quieres dar al viceculo", 1,30);
+				        carta = cartaFromString(cartaPresidente);
+				            
+				            
+				        for (int j=0; j<jugadores[i].getMano().length; j++){
+				                
+				            if(cartaEnMano(jugadores, i, carta)){
+				                cartasIntercambiables[1].setNumero(jugadores[i].getMano()[j].getNumero());
+				                cartasIntercambiables[1].setPalo(jugadores[i].getMano()[j].getPalo());
+				                jugadores = sacaCarta(jugadores, i, cartasIntercambiables[1]);
+				                presPos=i;
+				                isDone = true;
+				            }else {
+				            	System.out.println("Introduce una carta válida.");
+				            }
+				        }
+		        	}while(!isDone);
+		        	isDone = false;
+		        }
+		    }
+	    }
+	    if(!thereIsVice) {
+	    	for(int i = 0; i < jugadores[presPos].getMano().length && !isDone; i++) {
+	    		if(jugadores[presPos].getMano()[i].getNumero() == 0) {
+			    	jugadores[presPos].getMano()[i].setNumero(cartasIntercambiables[0].getNumero());
+			    	jugadores[presPos].getMano()[i].setPalo(cartasIntercambiables[0].getPalo());
+			    	isDone = true;
+	    		}
+	    	}
+	    	isDone = false;
+	    	for(int i = 0; i < jugadores[culoPos].getMano().length && !isDone; i++) {
+	    		if(jugadores[culoPos].getMano()[i].getNumero() == 0) {
+	    			jugadores[culoPos].getMano()[i].setNumero(cartasIntercambiables[1].getNumero());
+                	jugadores[culoPos].getMano()[i].setPalo(cartasIntercambiables[1].getPalo());
+                	isDone = true;
+	    		}
+	    	}
+	    	isDone = false;
+	    }else {
+	    	for(int i = 0; i < jugadores[presPos].getMano().length && !isDone; i++) {
+	    		if(jugadores[presPos].getMano()[i].getNumero() == 0) {
+			    	jugadores[presPos].getMano()[i].setNumero(cartasIntercambiablesAux[0].getNumero());
+			    	jugadores[presPos].getMano()[i].setPalo(cartasIntercambiablesAux[0].getPalo());
+			    	isDone = true;
+	    		}
+	    	}
+	    	isDone = false;
+	    	for(int i = 0; i < jugadores[presPos].getMano().length && !isDone; i++) {
+	    		if(jugadores[presPos].getMano()[i].getNumero() == 0) {
+			    	jugadores[presPos].getMano()[i].setNumero(cartasIntercambiablesAux[1].getNumero());
+			    	jugadores[presPos].getMano()[i].setPalo(cartasIntercambiablesAux[1].getPalo());
+			    	isDone = true;
+	    		}
+	    	}
+	    	isDone = false;
+	    	for(int i = 0; i < jugadores[vicePresPos].getMano().length && !isDone; i++) {
+	    		if(jugadores[vicePresPos].getMano()[i].getNumero() == 0) {
+			    	jugadores[vicePresPos].getMano()[i].setNumero(cartasIntercambiables[0].getNumero());
+			    	jugadores[vicePresPos].getMano()[i].setPalo(cartasIntercambiables[0].getPalo());
+			    	isDone = true;
+	    		}
+	    	}	    	
+	    	isDone = false;
+	    	for(int i = 0; i < jugadores[viceCuloPos].getMano().length && !isDone; i++) {
+	    		if(jugadores[viceCuloPos].getMano()[i].getNumero() == 0) {
+			    	jugadores[viceCuloPos].getMano()[i].setNumero(cartasIntercambiables[1].getNumero());
+			    	jugadores[viceCuloPos].getMano()[i].setPalo(cartasIntercambiables[1].getPalo());
+			    	isDone = true;
+	    		}
+	    	}	    	
+	    	isDone = false;
+	    	for(int i = 0; i < jugadores[culoPos].getMano().length && !isDone; i++) {
+	    		if(jugadores[culoPos].getMano()[i].getNumero() == 0) {
+	    			jugadores[culoPos].getMano()[i].setNumero(cartasIntercambiablesAux[2].getNumero());
+                	jugadores[culoPos].getMano()[i].setPalo(cartasIntercambiablesAux[2].getPalo());
+                	isDone = true;
+	    		}
+	    	}
+	    	isDone = false;
+	    	for(int i = 0; i < jugadores[culoPos].getMano().length && !isDone; i++) {
+	    		if(jugadores[culoPos].getMano()[i].getNumero() == 0) {
+	    			jugadores[culoPos].getMano()[i].setNumero(cartasIntercambiablesAux[3].getNumero());
+                	jugadores[culoPos].getMano()[i].setPalo(cartasIntercambiablesAux[3].getPalo());
+                	isDone = true;
+	    		}
+	    	}
+	    	isDone = false;
 	    }
 
 	    return jugadores;
@@ -1085,5 +1248,94 @@ public class Jugador {
 		}
 		return hayCarta;
 	}
+	
+	/**
+	 * Método para reordenar a los jugadores con el Culo en primera posición.
+	 * @param jugadores , el array de jugadores.
+	 * @return el array de jugadores reordenado.
+	 */
+	
+	public static Jugador[] ordenaConRoles(Jugador[] jugadores) {
+		Jugador[] jugadoresOrdenados = new Jugador[jugadores.length];
+		int pos = 0;
+		boolean isDone = false;
+			for(int j = 0; j < jugadores.length && !isDone; j++) {
+				if(jugadores[j].getRol() == "culo") {
+					jugadoresOrdenados[0] = new Jugador(jugadores.length);
+					jugadoresOrdenados[0].setMano(jugadores[j].getMano());
+					jugadoresOrdenados[0].setNombre(jugadores[j].getNombre());
+					jugadoresOrdenados[0].setNumeroCartasJugadas(jugadores[j].getNumeroCartasJugadas());
+					jugadoresOrdenados[0].setPosicion(jugadores[j].getPosicion());
+					jugadoresOrdenados[0].setRol(jugadores[j].getRol());
+					jugadoresOrdenados[0].setUltimaJugada(jugadores[j].getUltimaJugada());
+					if(j == jugadores.length - 1) {
+						pos = 0;
+						for(int i = 1; i < jugadores.length; i++) {
+							jugadoresOrdenados[i] = new Jugador(jugadores.length);
+							jugadoresOrdenados[i].setMano(jugadores[pos].getMano());
+							jugadoresOrdenados[i].setNombre(jugadores[pos].getNombre());
+							jugadoresOrdenados[i].setNumeroCartasJugadas(jugadores[pos].getNumeroCartasJugadas());
+							jugadoresOrdenados[i].setPosicion(jugadores[pos].getPosicion());
+							jugadoresOrdenados[i].setRol(jugadores[pos].getRol());
+							jugadoresOrdenados[i].setUltimaJugada(jugadores[pos].getUltimaJugada());
+							pos++;
+						}
+						isDone = true;
+					}else {
+						pos = j + 1;
+						for(int i = 1; i < jugadores.length; i++) {
+							jugadoresOrdenados[i] = new Jugador(jugadores.length);
+							jugadoresOrdenados[i].setMano(jugadores[pos].getMano());
+							jugadoresOrdenados[i].setNombre(jugadores[pos].getNombre());
+							jugadoresOrdenados[i].setNumeroCartasJugadas(jugadores[pos].getNumeroCartasJugadas());
+							jugadoresOrdenados[i].setPosicion(jugadores[pos].getPosicion());
+							jugadoresOrdenados[i].setRol(jugadores[pos].getRol());
+							jugadoresOrdenados[i].setUltimaJugada(jugadores[pos].getUltimaJugada());
+							if(pos == jugadores.length - 1) {
+								pos = 0;
+							}else {
+								pos++;
+							}
+						}
+						isDone = true;
+					}
+				}
+			}
+		
+		return jugadoresOrdenados;
+	}
+	
+	/**
+	 * Método que cuenta las cartas en la mano del jugador actual.
+	 * @param jugadores , el array de jugadores.
+	 * @param pos , la posicion del jugador actual.
+	 * @return un int con la cantidad de cartas en la mano del jugador.
+	 */
+	
+	public static int numeroCartasEnMano(Jugador[] jugadores, int pos) {
+		int count = 0;
+		for(int i = 0; i < jugadores[pos].getMano().length; i++) {
+			if(jugadores[pos].getMano()[i].getNumero() != 0) {
+				count++;
+			}
+		}
+		return count;
+	}
+	
+	/**
+	 * Método que limpia los roles de los jugadores.
+	 * @param jugadores , el array de jugadores.
+	 * @return el array de jugadores modificado.
+	 */
+	
+	public static Jugador[] limpiaRoles(Jugador[] jugadores) {
+		
+		for(int i = 0; i < jugadores.length; i++) {
+			jugadores[i].setRol("");
+		}
+		
+		return jugadores;
+	}
 }
+
 	
