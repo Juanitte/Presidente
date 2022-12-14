@@ -410,9 +410,15 @@ public class Jugador {
 						System.out.println("El nombre introducido no coincide con ninguna carta de tu mano.");
 					}
 				}while(!isCorrect);
+<<<<<<< HEAD
 				jugadores[pos].getUltimaJugada()[i] = new Carta();
 				jugadores[pos].getUltimaJugada()[i].setNumero(carta.getNumero());
 				jugadores[pos].getUltimaJugada()[i].setPalo(carta.getPalo());
+=======
+				jugadores[pos].ultimaJugada[i] = new Carta();
+				jugadores[pos].ultimaJugada[i].setNumero(carta.getNumero());
+				jugadores[pos].ultimaJugada[i].setPalo(carta.getPalo());
+>>>>>>> master
 				jugadores = sacaCarta(jugadores, pos, carta);
 			}
 		}
@@ -782,6 +788,7 @@ public class Jugador {
 	
 	public static Jugador[] ordenaInicio(Jugador[] jugadores) {
 		Jugador[] jugadoresOrdenados = new Jugador[jugadores.length];
+		Carta[] ultimaJugada = new Carta[8];
 		boolean isIn = false;
 		boolean isDone = false;
 		for(int i = 0; i < jugadores.length && !isDone; i++) {
