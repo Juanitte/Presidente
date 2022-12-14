@@ -159,15 +159,18 @@ public class Main {
 									if(!isPresi) {
 										jugadores[i].setRol("presidente");
 										System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
+										System.out.println("");
 									}else if(jugadoresFuera == jugadores.length - 2){
 										jugadores[i].setRol("neutro");
-										System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
+										System.out.println(jugadores[i].getNombre()+" es "+jugadores[i].getRol()+".");
+										System.out.println("");
 										boolean isDone = false;
 										for(int j = 0; j < jugadores.length && !isDone; j++) {
 											if(jugadores[j].getRol() == "") {
 												jugadores = Jugador.limpiaMano(jugadores, j);
 												jugadores[j].setRol("culo");
 												System.out.println(jugadores[j].getNombre()+" es el "+jugadores[j].getRol()+".");
+												System.out.println("");
 												isCulo = true;
 												isOver[2] = true;
 												isOver[1] = true;
@@ -180,6 +183,7 @@ public class Main {
 										jugadores[i].setRol("neutro");
 										posGanaRonda = i;
 										System.out.println(jugadores[i].getNombre()+" es "+jugadores[i].getRol()+".");
+										System.out.println("");
 									}
 								}else if(Jugador.numeroCartasEnMano(jugadores, i) == 0) {
 									for(int j = 0; j < jugadores.length; j++) {
@@ -196,17 +200,21 @@ public class Main {
 									if(!isPresi) {
 										jugadores[i].setRol("presidente");
 										System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
+										System.out.println("");
 									}else if(!isVicePresi) {
 										jugadores[i].setRol("vicepresidente");
 										System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
+										System.out.println("");
 									}else if(jugadoresFuera == jugadores.length - 2){
 										jugadores[i].setRol("viceculo");
 										System.out.println(jugadores[i].getNombre()+" es el "+jugadores[i].getRol()+".");
+										System.out.println("");
 										boolean isDone = false;
 										for(int j = 0; j < jugadores.length && !isDone; j++) {
 											if(jugadores[j].getRol() == "") {
 												jugadores[j].setRol("culo");
 												System.out.println(jugadores[j].getNombre()+" es el "+jugadores[j].getRol()+".");
+												System.out.println("");
 												isCulo = true;
 												isOver[2] = true;
 												isOver[1] = true;
@@ -280,6 +288,8 @@ public class Main {
 			}while(!isOver[2]);
 			
 			isOver[2] = false;
+			
+			isOver = Jugador.terminaPartida(isOver, "¿Empezar otra partida? Si / No : ");
 			
 			if(!isOver[3]) {
 				//Reinicializar jugadores.
